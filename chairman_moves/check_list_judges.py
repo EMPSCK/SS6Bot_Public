@@ -26,41 +26,54 @@ async def check_list(text, user_id):
         # На каждой из площадок получаем линейных и остальных судей
         for areaindex in range(len(areas)):
             area = areas[areaindex]
-            linjud = re.split(',\s{0,}', area[-1])
+            if areaindex == 0 and len(area) == 1 and ('ГСС' in area[0] or 'ГСек' in area[0]):
+                area[0] = area[0].split('\n')
+                for i in range(len(area[0])):
+                    area[0][i] = area[0][i].replace('ГСС. ', '')
+                    area[0][i] = area[0][i].replace('ГСек.', '')
+                    area[0][i] = area[0][i].strip().strip('.').strip('\n')
+                otherjud = area[0]
+                k = await chairman_queries.check_category_date(otherjud, user_id)
+                if k != 0:
+                    flag6 = 1
+                    s += f'❌Ошибка: {area}: {k}\n\n'
+                sumjudes.append(set(otherjud))
+            else:
+                linjud = re.split(',\s{0,}', area[-1])
 
-            familylinjud = [i.split()[0] for i in linjud]
-            otherjud = re.split(',\s{0,}', ', '.join([area[i] for i in range(len(area)) if i != 0 and area[i] != '' and i != len(area) - 1]))
-            area = area[0]
-            if '' in otherjud:
-                otherjud = []
+                familylinjud = [i.split()[0] for i in linjud]
+                otherjud = re.split(',\s{0,}', ', '.join(
+                    [area[i] for i in range(len(area)) if i != 0 and area[i] != '' and i != len(area) - 1]))
+                area = area[0]
+                if '' in otherjud:
+                    otherjud = []
 
-            k = await chairman_queries.check_category_date(otherjud + linjud, user_id)
-            if k != 0:
-                flag6 = 1
-                s += f'❌Ошибка: {area}: {k}\n\n'
+                k = await chairman_queries.check_category_date(otherjud + linjud, user_id)
+                if k != 0:
+                    flag6 = 1
+                    s += f'❌Ошибка: {area}: {k}\n\n'
 
+                k1 = await chairman_queries.check_clubs_match(linjud)
+                if k1 != 0:
+                    s += f'❌Ошибка: {area}: Распределение линейной группы по клубам нарушает регламент\n{k}\n'
+                    flag5 = 1
 
-            k1 = await chairman_queries.check_clubs_match(linjud)
-            if k1 != 0:
-                s += f'❌Ошибка: {area}: Распределение линейной группы по клубам нарушает регламент\n{k}\n'
-                flag5 = 1
+                # Проверяем количество линейных
+                if len(linjud) != const:
+                    s += f'❌Ошибка: {area}: количество членов линейной группы не соответствует установленной норме ({const}), на площадке - {len(linjud)}\n\n'
+                    flag1 = 1
 
-            # Проверяем количество линейных
-            if len(linjud) != const:
-                s += f'❌Ошибка: {area}: количество членов линейной группы не соответствует установленной норме ({const}), на площадке - {len(linjud)}\n\n'
-                flag1 = 1
+                # Проверяем совмещение должностей на площадке
+                if len(set(otherjud) & set(linjud)) != 0:
+                    flag4 = 1
+                    a = ', '.join(map(str, set(otherjud) & set(linjud)))
+                    s += f'🤔{area}: {a} совмеща(ет/ют) должности внутри площадки\n\n'
 
-            # Проверяем совмещение должностей на площадке
-            if len(set(otherjud) & set(linjud)) != 0:
-                flag4 = 1
-                a = ', '.join(map(str, set(otherjud) & set(linjud)))
-                s += f'🤔{area}: {a} совмеща(ет/ют) должности внутри площадки\n\n'
-
-            # Проверяем фамилии линейных
-            if len(familylinjud) != len(set(familylinjud)):
-                s += f'❌Ошибка: {area}: внутри линейной бригады есть одинаковые фамилии\n\n'
-                flag2 = 1
-            sumjudes.append(set(otherjud + linjud))
+                # Проверяем фамилии линейных
+                if len(familylinjud) != len(set(familylinjud)):
+                    s += f'❌Ошибка: {area}: внутри линейной бригады есть одинаковые фамилии\n\n'
+                    flag2 = 1
+                sumjudes.append(set(otherjud + linjud))
 
         # Проверяем пересечения между площадками
         res = list(combinations(sumjudes, 2))
@@ -126,8 +139,20 @@ async def get_parse(text, user_id):
         cur = conn.cursor()
         for areaindex in range(len(areas)):
             area = areas[areaindex]
-            linjud = re.split(',\s{0,}', area[-1])
-            otherjud = re.split(',\s{0,}', ', '.join([area[i] for i in range(len(area)) if i != 0 and area[i] != '' and i != len(area) - 1]))
+            if areaindex == 0 and len(area) == 1 and ('ГСС' in area[0] or 'ГСек' in area[0]):
+                area[0] = area[0].split('\n')
+                for i in range(len(area[0])):
+                    area[0][i] = area[0][i].replace('ГСС. ', '')
+                    area[0][i] = area[0][i].replace('ГСек.', '')
+                    area[0][i] = area[0][i].strip().strip('.').strip('\n')
+                otherjud = area[0]
+                linjud = []
+            else:
+                linjud = re.split(',\s{0,}', area[-1])
+                otherjud = re.split(',\s{0,}', ', '.join(
+                    [area[i] for i in range(len(area)) if i != 0 and area[i] != '' and i != len(area) - 1]))
+
+
             if '' in otherjud:
                 otherjud = []
 
@@ -183,11 +208,20 @@ async def get_all_judges(text):
     # На каждой из площадок получаем линейных и остальных судей
     for areaindex in range(len(areas)):
         area = areas[areaindex]
-        linjud = re.split(',\s{0,}', area[-1])
-        otherjud = re.split(',\s{0,}', ', '.join(
-            [area[i] for i in range(len(area)) if i != 0 and area[i] != '' and i != len(area) - 1]))
-        if '' in otherjud:
-            otherjud = []
-        sumjudes += linjud
-        sumjudes += otherjud
+        if areaindex == 0 and len(area) == 1 and ('ГСС' in area[0] or 'ГСек' in area[0]):
+            area[0] = area[0].split('\n')
+            for i in range(len(area[0])):
+                area[0][i] = area[0][i].replace('ГСС. ', '')
+                area[0][i] = area[0][i].replace('ГСек.', '')
+                area[0][i] = area[0][i].strip().strip('.').strip('\n')
+            otherjud = area[0]
+            sumjudes += otherjud
+        else:
+            linjud = re.split(',\s{0,}', area[-1])
+            otherjud = re.split(',\s{0,}', ', '.join(
+                [area[i] for i in range(len(area)) if i != 0 and area[i] != '' and i != len(area) - 1]))
+            if '' in otherjud:
+                otherjud = []
+            sumjudes += linjud
+            sumjudes += otherjud
     return sumjudes
