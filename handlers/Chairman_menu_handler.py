@@ -35,7 +35,7 @@ async def cmd_start(call: types.CallbackQuery):
         info = await general_queries.CompId_to_name(active_comp)
         await call.message.edit_text(f"👋Добро пожаловать в chairman интерфейс бота SS6\n\n /judges - отправить список судей\nАктивное соревнование: {info}", reply_markup = chairmans_kb.menu_kb)
 
-
+403607585
 #Выбрать активное соревнование
 @router.callback_query(F.data == 'set_active_competition')
 async def set_active_comp(call: types.CallbackQuery):

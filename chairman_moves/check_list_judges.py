@@ -31,6 +31,8 @@ async def check_list(text, user_id):
             familylinjud = [i.split()[0] for i in linjud]
             otherjud = re.split(',\s{0,}', ', '.join([area[i] for i in range(len(area)) if i != 0 and area[i] != '' and i != len(area) - 1]))
             area = area[0]
+            if '' in otherjud:
+                otherjud = []
 
             k = await chairman_queries.check_category_date(otherjud + linjud, user_id)
             if k != 0:
@@ -126,6 +128,9 @@ async def get_parse(text, user_id):
             area = areas[areaindex]
             linjud = re.split(',\s{0,}', area[-1])
             otherjud = re.split(',\s{0,}', ', '.join([area[i] for i in range(len(area)) if i != 0 and area[i] != '' and i != len(area) - 1]))
+            if '' in otherjud:
+                otherjud = []
+
             for i in otherjud + linjud:
                 if len(i.split()) == 2:
                     k = i.split()
@@ -181,6 +186,8 @@ async def get_all_judges(text):
         linjud = re.split(',\s{0,}', area[-1])
         otherjud = re.split(',\s{0,}', ', '.join(
             [area[i] for i in range(len(area)) if i != 0 and area[i] != '' and i != len(area) - 1]))
+        if '' in otherjud:
+            otherjud = []
         sumjudes += linjud
         sumjudes += otherjud
     return sumjudes
