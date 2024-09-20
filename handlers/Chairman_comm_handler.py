@@ -54,6 +54,8 @@ async def f2(message: Message):
         if judges_problem == []:
             res, msg = await check_list_judges.check_list(text, message.from_user.id)
             linsets[message.from_user.id][3] = msg
+            await chairman_queries.set_is_use_0(message.from_user.id)
+            await chairman_queries.set_free_judges(message.from_user.id)
             if res == 1:
                 # Перед отправкой сообщения проверяем, совпадает ли выбор турниров у пары и активно ли соревнование
                 scrutineer_id = await chairman_queries.get_Scrutineer(message.from_user.id)
@@ -67,7 +69,6 @@ async def f2(message: Message):
                         await message.answer('❌Ошибка\nВыбранное соревнование неактивно')
                     elif active_compId_scrutineer == active_compId_chairman:
                         try:
-                            #await chairman_queries.set_free_judges(message.from_user.id)
                             await message.bot.send_message(scrutineer_id, f"Сообщение от пользователя @{message.from_user.username}")
                             await message.bot.send_message(scrutineer_id, text)
                             await message.answer('✅Информация отправлена РСК')
@@ -140,6 +141,8 @@ async def edit_linset(callback: types.CallbackQuery):
         await callback.message.answer(text)
         res, msg = await check_list_judges.check_list(text, callback.from_user.id)
         linsets[callback.from_user.id][3] = msg
+        await chairman_queries.set_is_use_0(callback.from_user.id)
+        await chairman_queries.set_free_judges(callback.from_user.id)
         if res == 1:
             # Перед отправкой сообщения проверяем, совпадает ли выбор турниров у пары и активно ли соревнование
             scrutineer_id = await chairman_queries.get_Scrutineer(callback.from_user.id)
@@ -200,6 +203,8 @@ async def edit_linset(callback: types.CallbackQuery):
 
 
             res, msg = await check_list_judges.check_list(linsets[callback.from_user.id][0], callback.from_user.id)
+            await chairman_queries.set_is_use_0(callback.from_user.id)
+            await chairman_queries.set_free_judges(callback.from_user.id)
             if res == 1:
                 # Перед отправкой сообщения проверяем, совпадает ли выбор турниров у пары и активно ли соревнование
                 scrutineer_id = await chairman_queries.get_Scrutineer(callback.from_user.id)

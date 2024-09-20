@@ -112,13 +112,10 @@ async def cmd_start(message: Message):
         active_comp = await general_queries.get_CompId(message.from_user.id)
         active_or_not = await general_queries.active_or_not(active_comp)
         if active_or_not == 1:
-            #status = await chairman_queries.for_free(message.from_user.id)
-            status = await chairman_queries.get_free_judges(message.from_user.id)
+            status = await chairman_queries.for_free(message.from_user.id)
             if status == 0:
                 await message.answer('❌Ошибка')
             else:
-                status = status.split(', ')
-                status = '\n'.join(status)
                 await message.answer(status)
         else:
             await message.answer('❌Ошибка. Выбранное соревнование неактивно')

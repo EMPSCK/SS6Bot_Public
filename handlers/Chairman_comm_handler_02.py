@@ -94,6 +94,8 @@ async def f2(call, text):
     if user_status == 3:
         res, msg = await check_list_judges.check_list(text, call.from_user.id)
         Chairman_comm_handler.linsets[call.from_user.id][3] = msg
+        await chairman_queries.set_is_use_0(call.from_user.id)
+        await chairman_queries.set_free_judges(call.from_user.id)
         if res == 1:
             # Перед отправкой сообщения проверяем, совпадает ли выбор турниров у пары и активно ли соревнование
             scrutineer_id = await chairman_queries.get_Scrutineer(call.from_user.id)

@@ -855,3 +855,21 @@ async def check_celebrate(user_id):
     except Exception as e:
         print(e)
         return 0
+
+
+async def set_is_use_0(user_id):
+    try:
+        active_comp = await general_queries.get_CompId(user_id)
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"update competition_judges set is_use = 0 where compId = {active_comp}")
+    except:
+        return 0
