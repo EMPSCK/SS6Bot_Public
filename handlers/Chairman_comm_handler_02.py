@@ -108,7 +108,7 @@ async def f2(call, text):
                 elif active_compId_scrutineer == active_compId_chairman:
                     try:
                         await call.message.answer(text)
-                        await chairman_queries.set_free_judges(call.from_user.id)
+                        #await chairman_queries.set_free_judges(call.from_user.id)
                         await call.bot.send_message(scrutineer_id,
                                                     f"Сообщение от пользователя @{call.from_user.username}")
                         await call.bot.send_message(scrutineer_id, text)

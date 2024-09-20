@@ -67,7 +67,7 @@ async def f2(message: Message):
                         await message.answer('❌Ошибка\nВыбранное соревнование неактивно')
                     elif active_compId_scrutineer == active_compId_chairman:
                         try:
-                            await chairman_queries.set_free_judges(message.from_user.id)
+                            #await chairman_queries.set_free_judges(message.from_user.id)
                             await message.bot.send_message(scrutineer_id, f"Сообщение от пользователя @{message.from_user.username}")
                             await message.bot.send_message(scrutineer_id, text)
                             await message.answer('✅Информация отправлена РСК')
@@ -153,7 +153,7 @@ async def edit_linset(callback: types.CallbackQuery):
                     await callback.message.answer('❌Ошибка\nВыбранное соревнование неактивно')
                 elif active_compId_scrutineer == active_compId_chairman:
                     try:
-                        await chairman_queries.set_free_judges(callback.from_user.id)
+                        #await chairman_queries.set_free_judges(callback.from_user.id)
                         await callback.message.bot.send_message(scrutineer_id,
                                                        f"Сообщение от пользователя @{callback.from_user.username}")
                         await callback.message.bot.send_message(scrutineer_id, text)
@@ -213,7 +213,7 @@ async def edit_linset(callback: types.CallbackQuery):
                         await callback.message.answer('❌Ошибка\nВыбранное соревнование неактивно')
                     elif active_compId_scrutineer == active_compId_chairman:
                         try:
-                            await chairman_queries.set_free_judges(callback.from_user.id)
+                            #await chairman_queries.set_free_judges(callback.from_user.id)
                             await callback.message.bot.send_message(scrutineer_id,
                                                            f"Сообщение от пользователя @{callback.from_user.username}")
                             await callback.message.bot.send_message(scrutineer_id, linsets[callback.from_user.id][0])
@@ -299,7 +299,8 @@ async def f4(callback: types.CallbackQuery):
 
             elif active_compId_scrutineer == active_compId_chairman:
                 try:
-                    r = await chairman_queries.set_free_judges(callback.from_user.id)
+                    #r = await chairman_queries.set_free_judges(callback.from_user.id)
+                    r = 1
                     if r == 1:
                         await callback.message.bot.send_message(scrutineer_id, f"Сообщение от пользователя @{callback.from_user.username}")
                         await callback.message.bot.send_message(scrutineer_id, text)
