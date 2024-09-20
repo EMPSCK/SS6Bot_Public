@@ -418,7 +418,7 @@ async def for_free(user_id):
             #Если судьи не загружены на турнир
             if judgesComp == ():
                 return 'Свободных судей нет'
-            judges_free = name + '\n\n' +'\n'.join([i['lastName'] + ' ' + i['firstName'] + ' ' + str(i['City']) for i in judgesComp])
+            judges_free = name + '\n\n' +'\n'.join([i['lastName'] + ' ' + i['firstName'] + ', ' + str(i['City']) for i in judgesComp])
             return judges_free
 
     except Exception as e:
