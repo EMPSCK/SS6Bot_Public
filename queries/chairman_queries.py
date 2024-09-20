@@ -528,17 +528,16 @@ async def check_clubs_match(list):
                         clubs[club] = [jud]
                     else:
                         clubs[club].append(jud)
-
             for club in clubs:
-                if len(clubs[club]) != 1:
+                if len(clubs[club]) > 1:
                     ans = club + ': ' + ', '.join(clubs[club]) + '\n'
-
             if ans == '':
                 return 0
             else:
                 return ans
 
-    except:
+    except Exception as e:
+        print(e)
         return 0
 
 
