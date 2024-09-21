@@ -38,7 +38,6 @@ async def f2(message: Message):
 
 
     if user_status == 3:
-
         if await chairman_queries.check_have_tour_date(message.from_user.id) == 0:
             await message.answer('❌Ошибка. Установите активный турнир')
             return
@@ -77,6 +76,8 @@ async def f2(message: Message):
                     else:
                         await message.answer('❌Ошибка\nВыбор турниров не согласуется')
             elif res == 0:
+                await chairman_queries.set_is_use_0(message.from_user.id)
+                await chairman_queries.set_free_judges(message.from_user.id)
                 await message.answer(text)
                 await message.answer(msg, reply_markup=chairmans_kb.list_jud_send_kb)
 
