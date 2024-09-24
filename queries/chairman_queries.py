@@ -88,7 +88,6 @@ async def set_free_judges(user_id):
         )
         with conn:
             cur = conn.cursor()
-            print(config.judges_index[user_id])
             for i in config.judges_index[user_id]:
                 cur.execute(f"UPDATE competition_judges SET is_use = 1 WHERE lastName = '{i[0]}' AND firstName = '{i[1]}' AND bookNumber = {i[2]} AND compId = {active_comp}")
                 conn.commit()
@@ -113,7 +112,7 @@ async def get_free_judges(user_id):
         with conn:
             cur = conn.cursor()
             judges_use = config.judges_index[user_id]
-            cur.execute(f"SELECT * FROM competition_judges WHERE compId = {active_comp} AND is_use = 0")
+            cur.execute(f"SELECT * FROM competition_judges WHERE compId = {active_comp} AND is_use = 0 ORDER BY lastName")
             judgesComp = cur.fetchall()
             cur.close()
 
@@ -128,7 +127,7 @@ async def get_free_judges(user_id):
             if judges_free == []:
                 return 'свободных судей нет'
 
-            judges_free = ', '.join([i['firstName'] + ' ' + i['lastName'] for i in judges_free])
+            judges_free = ', '.join([i['lastName'] + ' ' + i['firstName'] for i in judges_free])
 
             return judges_free
 
@@ -412,7 +411,7 @@ async def for_free(user_id):
         )
         with conn:
             cur = conn.cursor()
-            cur.execute(f"SELECT * FROM competition_judges WHERE compId = {active_comp} AND is_use = 0")
+            cur.execute(f"SELECT * FROM competition_judges WHERE compId = {active_comp} AND is_use = 0 ORDER BY lastName")
             judgesComp = cur.fetchall()
             cur.close()
 
@@ -626,7 +625,7 @@ async def check_category_date(list, user_id):
             if len(problem) == 0:
                 return 0
             else:
-                return f"{', '.join(problem)}: на момент окончания турнира категория недействительна\n"
+                return f"{', '.join(problem)}: на момент окончания турнира категория недействительна"
 
     except Exception as e:
         print(e)
@@ -873,6 +872,27 @@ async def set_is_use_0(user_id):
             cur = conn.cursor()
             cur.execute(f"update competition_judges set is_use = 0 where compId = {active_comp}")
             conn.commit()
+    except Exception as e:
+        print(e)
+        return 0
+
+
+async def get_comment(user_id):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"SELECT сomment FROM skatebotusers WHERE tg_id = {user_id}")
+            ans = cur.fetchone()
+            cur.close()
+            return [ans[i] for i in ans][0]
     except Exception as e:
         print(e)
         return 0

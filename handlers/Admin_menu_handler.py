@@ -114,3 +114,10 @@ async def cmd_start(call: types.CallbackQuery, state:FSMContext):
             await call.message.answer('Процесс обновления данных завершен')
         else:
             await call.message.answer('❌Ошибка')
+
+
+from aiogram.filters import Command
+from admin_moves import filemanager
+@router.message(Command("start_files_update"))
+async def cmd_start(message: Message):
+    return await filemanager.filesmanager(message)

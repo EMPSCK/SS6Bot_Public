@@ -1,6 +1,7 @@
 import asyncio
 from aiogram import Bot, Dispatcher
 from config import TOKEN
+from admin_moves import filemanager
 from handlers import start_stage_handler
 from handlers import Chairman_menu_handler
 from handlers import Chairman_comm_handler
@@ -17,7 +18,9 @@ async def main():
     dp.include_router(Scrutineer_menu_handler.router)
     dp.include_router(Chairman_comm_handler.router)
     dp.include_router(Chairman_comm_handler_02.router)
+    await filemanager.filesmanager(bot)
     await dp.start_polling(bot)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

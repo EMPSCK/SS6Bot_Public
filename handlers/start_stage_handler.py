@@ -39,7 +39,10 @@ async def cmd_start(message: Message, state: FSMContext):
 
 @router.callback_query(F.data == 'send_id_to_admin')
 async def cmd_start(callback: types.CallbackQuery):
-    await callback.message.bot.send_message(config.ADMIN_ID, f'@{callback.from_user.username}: {callback.from_user.id}')
+    if callback.from_user.username is None:
+        await callback.message.bot.send_message(config.ADMIN_ID, f'@{callback.from_user.first_name} {callback.from_user.last_name}: {callback.from_user.id}')
+    else:
+        await callback.message.bot.send_message(config.ADMIN_ID, f'@{callback.from_user.username}: {callback.from_user.id}')
     await callback.message.edit_text("✅Данные отправлены", reply_markup=chairmans_kb.update_status_kb)
 
 
@@ -82,4 +85,3 @@ async def cmd_start(callback: types.CallbackQuery):
         await callback.message.edit_text(
             f"🗓Статус: {user_status}\nАктивное соревнование: {info}\nИзменений не обнаружено",
             reply_markup=chairmans_kb.update_status_kb)
-

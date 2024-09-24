@@ -7,11 +7,11 @@ import pymysql
 
 async def check_list(text, user_id):
     try:
-
         s = ''
         flag1, flag2, flag3, flag4, flag5, flag6 = 0, 0, 0, 0, 0, 0
         active_comp = await general_queries.get_CompId(user_id)
         const = await general_queries.get_tournament_lin_const(active_comp)
+        await chairman_queries.set_is_use_0(user_id)
         judges_free = await general_queries.get_judges_free(active_comp)
         judges_free = [[i['lastName'], i['firstName'], i['bookNumber']] for i in judges_free]
 

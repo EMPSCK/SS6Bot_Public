@@ -53,7 +53,6 @@ async def f2(message: Message):
         if judges_problem == []:
             res, msg = await check_list_judges.check_list(text, message.from_user.id)
             linsets[message.from_user.id][3] = msg
-            await chairman_queries.set_is_use_0(message.from_user.id)
             await chairman_queries.set_free_judges(message.from_user.id)
             if res == 1:
                 # Перед отправкой сообщения проверяем, совпадает ли выбор турниров у пары и активно ли соревнование
@@ -68,7 +67,11 @@ async def f2(message: Message):
                         await message.answer('❌Ошибка\nВыбранное соревнование неактивно')
                     elif active_compId_scrutineer == active_compId_chairman:
                         try:
-                            await message.bot.send_message(scrutineer_id, f"Сообщение от пользователя @{message.from_user.username}")
+                            if message.from_user.username is None:
+                                name = await chairman_queries.get_comment(message.from_user.id)
+                            else:
+                                name = f'@{message.from_user.username}'
+                            await message.bot.send_message(scrutineer_id, f"Сообщение от пользователя {name}")
                             await message.bot.send_message(scrutineer_id, text)
                             await message.answer('✅Информация отправлена РСК')
                         except:
@@ -76,7 +79,6 @@ async def f2(message: Message):
                     else:
                         await message.answer('❌Ошибка\nВыбор турниров не согласуется')
             elif res == 0:
-                await chairman_queries.set_is_use_0(message.from_user.id)
                 await chairman_queries.set_free_judges(message.from_user.id)
                 await message.answer(text)
                 await message.answer(msg, reply_markup=chairmans_kb.list_jud_send_kb)
@@ -139,10 +141,9 @@ async def edit_linset(callback: types.CallbackQuery):
             a2 = linsets[callback.from_user.id][2]
             problem = f"🤔{', '.join([a1[i][0] +  ' ' + a1[i][1] for i in range(len(a1)) if a2[i] == []])}: не обнаружены в бд. Пожалуйста загрузите дополнительных судей через /judges или отредактируйте сообщение"
             return await Chairman_comm_handler_02.edit_linlist(callback, problem)
-        await callback.message.answer(text)
+        await callback.message.edit_text(text)
         res, msg = await check_list_judges.check_list(text, callback.from_user.id)
         linsets[callback.from_user.id][3] = msg
-        await chairman_queries.set_is_use_0(callback.from_user.id)
         await chairman_queries.set_free_judges(callback.from_user.id)
         if res == 1:
             # Перед отправкой сообщения проверяем, совпадает ли выбор турниров у пары и активно ли соревнование
@@ -158,8 +159,12 @@ async def edit_linset(callback: types.CallbackQuery):
                 elif active_compId_scrutineer == active_compId_chairman:
                     try:
                         #await chairman_queries.set_free_judges(callback.from_user.id)
+                        if callback.from_user.username is None:
+                            name = await chairman_queries.get_comment(callback.from_user.id)
+                        else:
+                            name = f'@{callback.from_user.username}'
                         await callback.message.bot.send_message(scrutineer_id,
-                                                       f"Сообщение от пользователя @{callback.from_user.username}")
+                                                       f"Сообщение от пользователя {name}")
                         await callback.message.bot.send_message(scrutineer_id, text)
                         await callback.message.answer('✅Информация отправлена РСК')
                     except:
@@ -204,7 +209,6 @@ async def edit_linset(callback: types.CallbackQuery):
 
 
             res, msg = await check_list_judges.check_list(linsets[callback.from_user.id][0], callback.from_user.id)
-            await chairman_queries.set_is_use_0(callback.from_user.id)
             await chairman_queries.set_free_judges(callback.from_user.id)
             if res == 1:
                 # Перед отправкой сообщения проверяем, совпадает ли выбор турниров у пары и активно ли соревнование
@@ -220,8 +224,12 @@ async def edit_linset(callback: types.CallbackQuery):
                     elif active_compId_scrutineer == active_compId_chairman:
                         try:
                             #await chairman_queries.set_free_judges(callback.from_user.id)
+                            if callback.from_user.username is None:
+                                name = await chairman_queries.get_comment(callback.from_user.id)
+                            else:
+                                name = f'@{callback.from_user.username}'
                             await callback.message.bot.send_message(scrutineer_id,
-                                                           f"Сообщение от пользователя @{callback.from_user.username}")
+                                                           f"Сообщение от пользователя {name}")
                             await callback.message.bot.send_message(scrutineer_id, linsets[callback.from_user.id][0])
                             await callback.message.delete()
                             await callback.message.answer(linsets[callback.from_user.id][0])
@@ -308,7 +316,11 @@ async def f4(callback: types.CallbackQuery):
                     #r = await chairman_queries.set_free_judges(callback.from_user.id)
                     r = 1
                     if r == 1:
-                        await callback.message.bot.send_message(scrutineer_id, f"Сообщение от пользователя @{callback.from_user.username}")
+                        if callback.from_user.username is None:
+                            name = await chairman_queries.get_comment(callback.from_user.id)
+                        else:
+                            name = f'@{callback.from_user.username}'
+                        await callback.message.bot.send_message(scrutineer_id, f"Сообщение от пользователя {name}")
                         await callback.message.bot.send_message(scrutineer_id, text)
                         await callback.message.bot.send_message(scrutineer_id, linsets[callback.from_user.id][3])
                         await callback.message.delete()
@@ -333,7 +345,7 @@ async def f4(callback: types.CallbackQuery):
         if a == 0:
             await callback.message.answer('❌Ошибка, отправьте список еще раз')
         else:
-            await callback.message.edit_text(callback.message.text + f'\nСвободные судьи: {a}', reply_markup=chairmans_kb.list_jud_send_kb)
+            await callback.message.edit_text(callback.message.text + f'\n\n<b>Свободные судьи:</b> {a}', reply_markup=chairmans_kb.list_jud_send_kb, parse_mode='html')
     except Exception as e:
         print(e)
         await callback.message.answer('❌Ошибка, отправьте список еще раз')
