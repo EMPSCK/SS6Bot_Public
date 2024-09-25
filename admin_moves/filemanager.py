@@ -22,9 +22,9 @@ async def compid_to_chairman(compid):
     except:
         return 0
 
+from aiogram.types import FSInputFile
 async def filesmanager(bot):
     while True:
-        print("Я тут")
         conn = pymysql.connect(
             host=config.host,
             port=3306,
@@ -46,18 +46,16 @@ async def filesmanager(bot):
                 url = file['loadUrl']
                 compid = file['compId']
                 delurl = file['deleteUrl']
-                chairman_id = await  compid_to_chairman(compid)
+                chairman_id = await compid_to_chairman(compid)
 
                 response = requests.get(url)
                 if response.status_code == 200:
                     file = open(f"Analytics_{compid}.pdf", 'wb')
                     file.write(response.content)
                     file.close()
+
+                    await bot.send_document(chat_id=chairman_id, document=FSInputFile(f"Analytics_{compid}.pdf"))
                     os.remove(f"Analytics_{compid}.pdf")
-                    await bot.send_message(chairman_id, 'Вот этот ебучий файл')
-                    #response = requests.get(delurl)
-                    #cur.execute(f"DELETE FROM competition_files WHERE compId = {compid}")
-                else:
-                    await bot.send_message(config.ADMIN_ID, f"compId: {compid}\nНе получилось скачать файл")
-        print('Я все')
+                    response = requests.get(delurl)
+            cur.execute(f"DELETE FROM competition_files")
         await asyncio.sleep(60)

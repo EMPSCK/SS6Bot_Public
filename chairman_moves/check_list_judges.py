@@ -189,10 +189,14 @@ async def transform_linlist(text, judges, user_id):
         cur = conn.cursor()
         with conn:
             for jud in judges:
-                lastname, firstname = jud
-                cur.execute(f"SELECT firstName, lastName FROM competition_judges WHERE firstName2 = '{firstname}' and lastName2 = '{lastname}' and compId = {active_comp}")
-                name = cur.fetchone()
-                text = text.replace(lastname + ' ' + firstname, name['lastName'] + ' ' + name['firstName'] )
+                if jud[-1] == 'NoneSpace':
+                    lastname, firstname = jud[0:2]
+                    text = text.replace(lastname + firstname, lastname + ' ' + firstname)
+                else:
+                    lastname, firstname = jud
+                    cur.execute(f"SELECT firstName, lastName FROM competition_judges WHERE firstName2 = '{firstname}' and lastName2 = '{lastname}' and compId = {active_comp}")
+                    name = cur.fetchone()
+                    text = text.replace(lastname + ' ' + firstname, name['lastName'] + ' ' + name['firstName'] )
             return text
     except Exception as e:
         print(e)
