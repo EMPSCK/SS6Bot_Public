@@ -45,9 +45,9 @@ async def f2(message: Message):
         #judges_problem - не получилось пробить по competition_judges (в двух полях с именами)
         #judges_problem_db - имя совпало со вторым вариантом, далее в сообщении меняем их имена на имена в judges
         linsets[message.from_user.id] = [message.text, [], [], []]
-        judges_problem, judges_problem_db = await check_list_judges.get_parse(message.text, message.from_user.id)
+        judges_problem, judges_problem_db, text_edit = await check_list_judges.get_parse(message.text, message.from_user.id)
         linsets[message.from_user.id][1] = judges_problem
-        text = await check_list_judges.transform_linlist(message.text, judges_problem_db, message.from_user.id)
+        text = await check_list_judges.transform_linlist(text_edit, judges_problem_db, message.from_user.id)
         linsets[message.from_user.id][0] = text
         #Все пробились в competition_judges
         if judges_problem == []:

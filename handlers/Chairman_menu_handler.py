@@ -32,17 +32,23 @@ async def cmd_start(call: types.CallbackQuery):
     user_status = await get_user_status_query.get_user_status(call.from_user.id)
     if user_status == 3:
         active_comp = await general_queries.get_CompId(call.from_user.id)
+        await chairman_queries.del_unactive_comp(call.from_user.id, active_comp)
         info = await general_queries.CompId_to_name(active_comp)
         await call.message.edit_text(f"👋Добро пожаловать в chairman интерфейс бота SS6\n\n /judges - отправить список судей\nАктивное соревнование: {info}", reply_markup = chairmans_kb.menu_kb)
 
-403607585
+
 #Выбрать активное соревнование
 @router.callback_query(F.data == 'set_active_competition')
 async def set_active_comp(call: types.CallbackQuery):
     user_status = await get_user_status_query.get_user_status(call.from_user.id)
     if user_status == 3:
+        active_comp = await general_queries.get_CompId(call.from_user.id)
+        await chairman_queries.del_unactive_comp(call.from_user.id, active_comp)
         markup = await chairmans_kb.gen_list_comp(call.from_user.id)
-        await call.message.edit_reply_markup(reply_markup=markup)
+        info = await general_queries.CompId_to_name(active_comp)
+        await call.message.edit_text(
+            f"👋Добро пожаловать в chairman интерфейс бота SS6\n\n /judges - отправить список судей\nАктивное соревнование: {info}",
+            reply_markup=markup)
 
 
 #Обработка после выбора активного соревнования

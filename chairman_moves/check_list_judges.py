@@ -161,17 +161,70 @@ async def get_parse(text, user_id):
                     k = i.split()
                     firstname = k[1]
                     lastname = k[0]
+                elif len(i.split()) == 1:
+                    lastname = re.search('^[А-ЯA-Z][а-яa-z]*', i)[0]
+                    firstname = i.replace(lastname, '')
+                    text = text.replace(lastname + firstname, lastname + ' ' + firstname)
+                elif len(i.split()) > 2:
+                    peopls = [['cdcdcd', 'cdcdc']]
+                    k = i.split()
+                    p = len(k) - 1
+                    for j in range(len(k)):
+                        if j == p and k[j] != re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0]:
+                            lastname = re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0].strip()
+                            firstname = k[j].replace(lastname, '').strip()
+                            text = text.replace(lastname + firstname, lastname + ' ' + firstname)
+                            peopls.append([lastname, firstname])
+                        elif j == p and k[j] == re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0]:
+                            pass
+                        elif j != p and k[j] == re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0] and peopls[-1][1] != k[j]:
+                            lastname, firstname = k[j].strip(), k[j+1].strip()
+                            peopls.append([lastname, firstname])
+                            if j == p - 1:
+                                text = text.replace(lastname + ' ' + firstname, lastname + ' ' + firstname)
+                            else:
+                                text = text.replace(lastname + ' ' + firstname, lastname + ' ' + firstname + ',')
+
+                        elif j != p and k[j] != re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0]:
+                            lastname = re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0].strip()
+                            firstname = k[j].replace(lastname, '').strip()
+                            text = text.replace(lastname + firstname, lastname + ' ' + firstname + ',')
+                            peopls.append([lastname, firstname])
+                    peopls.pop(0)
+                    for people in peopls:
+                        lastname, firstname = people
+                        if cur.execute(
+                                f"SELECT bookNumber FROM competition_judges WHERE firstName = '{firstname}' AND lastName = '{lastname}' AND compId = {active_comp}") == 0:
+                            cur.execute(f"SELECT lastName from competition_judges WHERE lastName = '{lastname}'")
+                            ans1 = cur.fetchall()
+                            cur.execute(f"SELECT lastName from competition_judges WHERE lastName2 = '{lastname}'")
+                            ans2 = cur.fetchall()
+
+                            if cur.execute(
+                                    f"SELECT bookNumber FROM competition_judges WHERE firstName2 = '{firstname}' AND lastName2 = '{lastname}' AND compId = {active_comp}") == 0:
+                                judges_problem.append([lastname, firstname])
+                            else:
+                                judges_problem_db.append([lastname, firstname])
                 else:
                     k = i.split()
                     firstname = ' '.join(k[1::])
                     lastname = k[0]
+
+
                 if cur.execute(f"SELECT bookNumber FROM competition_judges WHERE firstName = '{firstname}' AND lastName = '{lastname}' AND compId = {active_comp}") == 0:
+                    cur.execute(f"SELECT lastName from competition_judges WHERE lastName = '{lastname}'")
+                    ans1 = cur.fetchall()
+                    cur.execute(f"SELECT lastName from competition_judges WHERE lastName2 = '{lastname}'")
+                    ans2 = cur.fetchall()
+
                     if cur.execute(f"SELECT bookNumber FROM competition_judges WHERE firstName2 = '{firstname}' AND lastName2 = '{lastname}' AND compId = {active_comp}") == 0:
                         judges_problem.append([lastname, firstname])
                     else:
                         judges_problem_db.append([lastname, firstname])
 
-    return judges_problem, judges_problem_db
+    if text[-1] == ',':
+        text = text[0:-1] + '.'
+    return judges_problem, judges_problem_db, text
 
 
 

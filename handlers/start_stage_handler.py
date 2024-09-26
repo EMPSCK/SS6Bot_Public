@@ -8,6 +8,7 @@ from queries import general_queries
 from keyboards import chairmans_kb
 from keyboards import scrutineer_kb
 from keyboards import admins_kb
+from queries import chairman_queries
 from aiogram.fsm.context import FSMContext
 router = Router()
 
@@ -24,12 +25,14 @@ async def cmd_start(message: Message, state: FSMContext):
     #scrutinner
     if user_status == 2:
         active_comp = await general_queries.get_CompId(message.from_user.id)
+        await chairman_queries.del_unactive_comp(message.from_user.id, active_comp)
         info = await general_queries.CompId_to_name(active_comp)
         await message.answer(f"👋Добро пожаловать в scrutineer интерфейс бота SS6\nАктивное соревнование: {info}", reply_markup=scrutineer_kb.menu_kb)
 
     #chairman
     if user_status == 3:
         active_comp = await general_queries.get_CompId(message.from_user.id)
+        await chairman_queries.del_unactive_comp(message.from_user.id, active_comp)
         info = await general_queries.CompId_to_name(active_comp)
         await message.answer(f"👋Добро пожаловать в chairman интерфейс бота SS6\n\n /judges - отправить список судей\nАктивное соревнование: {info}", reply_markup = chairmans_kb.menu_kb)
 

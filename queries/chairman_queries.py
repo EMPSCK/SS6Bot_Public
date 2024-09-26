@@ -896,3 +896,31 @@ async def get_comment(user_id):
     except Exception as e:
         print(e)
         return 0
+
+
+
+
+async def del_unactive_comp(tg_id, active_comp):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"SELECT date2 FROM competition WHERE compId = {active_comp}")
+            ans = cur.fetchone()
+            now = date.today()
+            a = now - ans['date2']
+            if a.days > 0:
+                cur.execute(f"UPDATE skatebotusers set id_active_comp = NULL WHERE tg_id = {tg_id}")
+                conn.commit()
+            cur.close()
+    except Exception as e:
+        print(e)
+        print('Ошибка выполнения запроса на удаление записи о прошеднем соревновании')
+        return 0

@@ -58,4 +58,5 @@ async def filesmanager(bot):
                     os.remove(f"Analytics_{compid}.pdf")
                     response = requests.get(delurl)
             cur.execute(f"DELETE FROM competition_files")
+            conn.commit()
         await asyncio.sleep(60)
