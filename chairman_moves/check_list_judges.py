@@ -193,12 +193,14 @@ async def get_parse(text, user_id):
                     peopls.pop(0)
                     for people in peopls:
                         lastname, firstname = people
+                        st1 = cur.execute(f"SELECT firstName, lastName From competition_judges WHERE (lastName = '{lastname}' OR lastName2 = '{lastname}') AND CompId = {active_comp}")
+                        st1 = cur.fetchall()
+                        if len(st1) == 1:
+                            text = text.replace(lastname + ' ' + firstname, st1[0]['lastName'] + ' ' + st1[0]['firstName'])
+                            continue
+
                         if cur.execute(
                                 f"SELECT bookNumber FROM competition_judges WHERE firstName = '{firstname}' AND lastName = '{lastname}' AND compId = {active_comp}") == 0:
-                            cur.execute(f"SELECT lastName from competition_judges WHERE lastName = '{lastname}'")
-                            ans1 = cur.fetchall()
-                            cur.execute(f"SELECT lastName from competition_judges WHERE lastName2 = '{lastname}'")
-                            ans2 = cur.fetchall()
 
                             if cur.execute(
                                     f"SELECT bookNumber FROM competition_judges WHERE firstName2 = '{firstname}' AND lastName2 = '{lastname}' AND compId = {active_comp}") == 0:
@@ -210,6 +212,12 @@ async def get_parse(text, user_id):
                     firstname = ' '.join(k[1::])
                     lastname = k[0]
 
+                st1 = cur.execute(
+                    f"SELECT firstName, lastName From competition_judges WHERE (lastName = '{lastname}' OR lastName2 = '{lastname}') AND CompId = {active_comp}")
+                st1 = cur.fetchall()
+                if len(st1) == 1:
+                    text = text.replace(lastname + ' ' + firstname, st1[0]['lastName'] + ' ' + st1[0]['firstName'])
+                    continue
 
                 if cur.execute(f"SELECT bookNumber FROM competition_judges WHERE firstName = '{firstname}' AND lastName = '{lastname}' AND compId = {active_comp}") == 0:
                     cur.execute(f"SELECT lastName from competition_judges WHERE lastName = '{lastname}'")
