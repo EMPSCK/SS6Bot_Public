@@ -218,9 +218,11 @@ async def get_parse(text, user_id):
                     ans2 = cur.fetchall()
 
                     if cur.execute(f"SELECT bookNumber FROM competition_judges WHERE firstName2 = '{firstname}' AND lastName2 = '{lastname}' AND compId = {active_comp}") == 0:
-                        judges_problem.append([lastname, firstname])
+                        if [lastname, firstname] not in judges_problem:
+                            judges_problem.append([lastname, firstname])
                     else:
-                        judges_problem_db.append([lastname, firstname])
+                        if [lastname, firstname] not in judges_problem_db:
+                            judges_problem_db.append([lastname, firstname])
 
     if text[-1] == ',':
         text = text[0:-1] + '.'
