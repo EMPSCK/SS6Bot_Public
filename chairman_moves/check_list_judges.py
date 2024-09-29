@@ -8,7 +8,7 @@ import pymysql
 async def check_list(text, user_id):
     try:
         s = ''
-        flag1, flag2, flag3, flag4, flag5, flag6 = 0, 0, 0, 0, 0, 0
+        flag1, flag2, flag3, flag4, flag5, flag6, flag7 = 0, 0, 0, 0, 0, 0, 0
         active_comp = await general_queries.get_CompId(user_id)
         const = await general_queries.get_tournament_lin_const(active_comp)
         await chairman_queries.set_is_use_0(user_id)
@@ -45,6 +45,13 @@ async def check_list(text, user_id):
                 otherjud = re.split(',\s{0,}', ', '.join(
                     [area[i] for i in range(len(area)) if i != 0 and area[i] != '' and i != len(area) - 1]))
                 area = area[0]
+                group_num = re.search('\d+', area)
+                if group_num is not None:
+                    k2 = await chairman_queries.group_id_to_lin_const(active_comp, group_num)
+                    if k2 != 0 and k2 is not None:
+                        const = k2
+
+
                 if '' in otherjud:
                     otherjud = []
 

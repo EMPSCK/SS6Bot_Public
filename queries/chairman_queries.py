@@ -924,3 +924,24 @@ async def del_unactive_comp(tg_id, active_comp):
         print(e)
         print('Ошибка выполнения запроса на удаление записи о прошеднем соревновании')
         return 0
+
+
+async def group_id_to_lin_const(compId, group_num):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"SELECT judges FROM competition_group WHERE compId = {compId} AND groupNumber = {group_num}")
+            ans = cur.fetchone()
+            cur.close()
+            return ans['judges']
+    except Exception as e:
+        print(e)
+        return 0

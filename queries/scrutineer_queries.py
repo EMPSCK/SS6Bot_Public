@@ -25,7 +25,8 @@ async def get_list_comp(tg_id):
                 if a.days <= 0:
                     ans.append(comp)
             return ans
-    except:
+    except Exception as e:
+        print(e)
         print('Ошибка выполнения запроса на поиск соревнований для chairman1')
         return 0
 
