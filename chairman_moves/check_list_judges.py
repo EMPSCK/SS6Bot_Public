@@ -47,6 +47,7 @@ async def check_list(text, user_id):
                 area = area[0]
                 group_num = re.search('\d+', area)
                 if group_num is not None:
+                    group_num = int(group_num[0])
                     k2 = await chairman_queries.group_id_to_lin_const(active_comp, group_num)
                     if k2 != 0 and k2 is not None:
                         const = k2
