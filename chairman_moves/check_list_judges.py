@@ -45,9 +45,9 @@ async def check_list(text, user_id):
                 otherjud = re.split(',\s{0,}', ', '.join(
                     [area[i] for i in range(len(area)) if i != 0 and area[i] != '' and i != len(area) - 1]))
                 area = area[0]
-                group_num = re.search('\d+', area)
+                group_num = re.search('Гр.\s{0,}\d+', area)
                 if group_num is not None:
-                    group_num = int(group_num[0])
+                    group_num = int(group_num[0].replace('Гр.', '').strip())
                     k2 = await chairman_queries.group_id_to_lin_const(active_comp, group_num)
                     if k2 != 0 and k2 is not None:
                         const = k2
