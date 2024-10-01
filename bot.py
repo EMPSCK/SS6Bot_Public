@@ -9,6 +9,7 @@ from handlers import Chairman_comm_handler_02
 from handlers import Scrutineer_menu_handler
 from handlers import Admin_menu_handler
 
+
 async def main():
     bot = Bot(token=TOKEN)
     dp = Dispatcher()
@@ -18,8 +19,8 @@ async def main():
     dp.include_router(Scrutineer_menu_handler.router)
     dp.include_router(Chairman_comm_handler.router)
     dp.include_router(Chairman_comm_handler_02.router)
-    loop = asyncio.get_event_loop()
-    loop.create_task(filemanager.filesmanager(bot))
+    #loop = asyncio.get_event_loop()
+    #loop.create_task(filemanager.filesmanager(bot))
     await dp.start_polling(bot)
 
 

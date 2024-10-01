@@ -184,13 +184,14 @@ async def set_problem_jud_as_is(user_id, jud, booknumber=-1):
                 SPORT_Category = person['SPORT_Category']
                 SPORT_CategoryDate = person['SPORT_CategoryDate']
                 SPORT_CategoryDateConfirm = person['SPORT_CategoryDateConfirm']
+                DSFARR_Category_Id = person['DSFARR_Category_Id']
                 federation = person['federation']
-                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `lastName2`, `firstName2`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `lastName2`, `firstName2`, `DSFARR_Category_Id`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                 cur.execute(sql, (
                     active_comp, lastname1, firstname1, SecondName, Birth, DSFARR_Category, DSFARR_CategoryDate,
                     WDSF_CategoryDate,
                     RegionId, City, Club, Translit, SPORT_Category, SPORT_CategoryDate, SPORT_CategoryDateConfirm,
-                    federation, Archive, BookNumber, notjud, 0, lastname, firstname))
+                    federation, Archive, BookNumber, notjud, 0, lastname, firstname, DSFARR_Category_Id))
                 conn.commit()
             else:
                 sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `notJudges`, `is_use`, `bookNumber`, `lastName2`, `firstName2`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
@@ -258,26 +259,27 @@ async def set_problem_jud_as_is_1(user_id, jud, name=''):
             SPORT_CategoryDate = person['SPORT_CategoryDate']
             SPORT_CategoryDateConfirm = person['SPORT_CategoryDateConfirm']
             federation = person['federation']
+            DSFARR_Category_Id = person['DSFARR_Category_Id']
             # Если судья уже есть в таблице competition_judges
             cur.execute(
                 f"DELETE FROM competition_judges  WHERE firstName2 = '{firstname}' AND lastName2 = '{lastname}' AND compId = {active_comp}")
             conn.commit()
 
             if name != '':
-                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `firstName2`, `lastName2`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `firstName2`, `lastName2`, `DSFARR_Category_Id`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                 cur.execute(sql, (
                     active_comp, lastname, firstname, SecondName, Birth, DSFARR_Category, DSFARR_CategoryDate,
                     WDSF_CategoryDate,
                     RegionId, City, Club, Translit, SPORT_Category, SPORT_CategoryDate, SPORT_CategoryDateConfirm,
-                    federation, Archive, BookNumber, notjud, 0, firstname2, lastname2))
+                    federation, Archive, BookNumber, notjud, 0, firstname2, lastname2, DSFARR_Category_Id))
                 conn.commit()
             else:
-                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `DSFARR_Category_Id`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                 cur.execute(sql, (
                     active_comp, lastname, firstname, SecondName, Birth, DSFARR_Category, DSFARR_CategoryDate,
                     WDSF_CategoryDate,
                     RegionId, City, Club, Translit, SPORT_Category, SPORT_CategoryDate, SPORT_CategoryDateConfirm,
-                    federation, Archive, BookNumber, notjud, 0))
+                    federation, Archive, BookNumber, notjud, 0, DSFARR_Category_Id))
                 conn.commit()
             cur.close()
             return 1
@@ -343,6 +345,7 @@ async def get_similar_judges(jud):
 
 async def add_problemcorrect_jud(booknumber, user_id, name2):
     try:
+        print(booknumber, user_id, name2)
         conn = pymysql.connect(
             host=config.host,
             port=3306,
@@ -380,18 +383,20 @@ async def add_problemcorrect_jud(booknumber, user_id, name2):
             SPORT_CategoryDateConfirm = person[0]['SPORT_CategoryDateConfirm']
             federation = person[0]['federation']
             notjud = re.match(r'^[a-zA-Z]+\Z', name.replace(' ', '')) is not None
+            DSFARR_Category_Id = person[0]['DSFARR_Category_Id']
+
 
             # Если судья уже есть в таблице competition_judges
             cur.execute(
                 f"DELETE FROM competition_judges WHERE firstName2 = '{firstname2}' AND lastName2 = '{lastname2}' AND compId = {active_comp}")
             conn.commit()
 
-            sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `firstName2`, `lastName2`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `firstName2`, `lastName2`, `DSFARR_Category_Id`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
             cur.execute(sql, (
                 active_comp, last_name, name, SecondName, Birth, DSFARR_Category, DSFARR_CategoryDate,
                 WDSF_CategoryDate,
                 RegionId, City, Club, Translit, SPORT_Category, SPORT_CategoryDate, SPORT_CategoryDateConfirm,
-                federation, Archive, booknumber, notjud, 0, firstname2, lastname2))
+                federation, Archive, booknumber, notjud, 0, firstname2, lastname2, DSFARR_Category_Id))
             conn.commit()
     except Exception as e:
         print(e)
