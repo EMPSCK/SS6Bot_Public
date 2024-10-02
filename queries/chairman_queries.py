@@ -950,3 +950,51 @@ async def group_id_to_lin_const(compId, group_num):
     except Exception as e:
         print(e)
         return 0
+
+
+async def check_min_category(judges, group_num, compId):
+    try:
+        ans = []
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            cur.execute(
+                f"SELECT minCategoryId FROM competition_group WHERE compId = {compId} AND groupNumber = {group_num}")
+            mincat = cur.fetchone()
+            if mincat == None:
+                return 1
+            mincat = mincat['minCategoryId']
+            for i in judges:
+                if len(i.split()) == 2:
+                    k = i.split()
+                    firstname = k[1]
+                    lastname = k[0]
+                else:
+                    k = i.split()
+                    firstname = ' '.join(k[1::])
+                    lastname = k[0]
+
+                cur.execute(
+                    f"SELECT DSFARR_Category_Id FROM competition_judges WHERE compId = {compId} AND firstName = '{firstname}' and lastName = '{lastname}'")
+                jud_cat = cur.fetchone()
+                jud_cat = jud_cat['DSFARR_Category_Id']
+                if jud_cat is None:
+                    continue
+
+                if jud_cat < mincat:
+                    ans.append(i)
+            cur.close()
+            if len(ans) == 0:
+                return 1
+            else:
+                return f"{', '.join(ans)} - категория не соответствует минимальной категории группы"
+    except Exception as e:
+        print(e)
+        return 1

@@ -48,6 +48,12 @@ async def check_list(text, user_id):
                 group_num = re.search('Гр.\s{0,}\d+', area)
                 if group_num is not None:
                     group_num = int(group_num[0].replace('Гр.', '').strip())
+
+                    k7 = await chairman_queries.check_min_category(otherjud + linjud, group_num, active_comp)
+                    if k7 != 1:
+                        flag7 = 1
+                        s += f'❌Ошибка: {k7}\n\n'
+
                     k2 = await chairman_queries.group_id_to_lin_const(active_comp, group_num)
                     if k2 != 0 and k2 is not None:
                         const = k2
@@ -56,10 +62,12 @@ async def check_list(text, user_id):
                 if '' in otherjud:
                     otherjud = []
 
+
                 k = await chairman_queries.check_category_date(otherjud + linjud, user_id)
                 if k != 0:
                     flag6 = 1
                     s += f'❌Ошибка: {area}: {k}\n\n'
+
 
                 k1 = await chairman_queries.check_clubs_match(linjud)
                 if k1 != 0:
@@ -115,7 +123,7 @@ async def check_list(text, user_id):
 
 
         config.judges_index[user_id] = judges_use
-        if flag1 + flag2 + flag3 + flag4 + flag5 + flag6 == 0:
+        if flag1 + flag2 + flag3 + flag4 + flag5 + flag6 + flag7 == 0:
             return (1, s)
         else:
             return (0, s)
