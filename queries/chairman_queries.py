@@ -945,6 +945,8 @@ async def group_id_to_lin_const(compId, group_num):
             cur = conn.cursor()
             cur.execute(f"SELECT judges FROM competition_group WHERE compId = {compId} AND groupNumber = {group_num}")
             ans = cur.fetchone()
+            if ans is None:
+                return 0
             cur.close()
             return ans['judges']
     except Exception as e:
@@ -968,8 +970,9 @@ async def check_min_category(judges, group_num, compId):
             cur.execute(
                 f"SELECT minCategoryId FROM competition_group WHERE compId = {compId} AND groupNumber = {group_num}")
             mincat = cur.fetchone()
-            if mincat == None:
+            if mincat is None:
                 return 1
+
             mincat = mincat['minCategoryId']
             for i in judges:
                 if len(i.split()) == 2:
@@ -989,12 +992,19 @@ async def check_min_category(judges, group_num, compId):
                     continue
 
                 if jud_cat < mincat:
-                    ans.append(i)
-            cur.close()
+                    cur.execute(f"SELECT catregoryName from judges_category WHERE categoryId = {jud_cat}")
+                    s = cur.fetchone()
+                    ans.append(i + f': {s["catregoryName"]}\n')
             if len(ans) == 0:
                 return 1
             else:
-                return f"{', '.join(ans)} - категория не соответствует минимальной категории группы"
+                cur.execute(f"SELECT catregoryName from judges_category WHERE categoryId = {mincat}")
+                s = cur.fetchone()
+                s = s["catregoryName"]
+                cur.close()
+                return f"Минимальная категория для работы на турнире: {s}\n{''.join(ans)}".strip('\n')
+
     except Exception as e:
         print(e)
         return 1
+
