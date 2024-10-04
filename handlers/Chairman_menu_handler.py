@@ -220,7 +220,6 @@ async def edit_problem_jud(callback: types.CallbackQuery, state: FSMContext, q=1
         await callback.message.answer('При загрузке списка возникла ошибка, попробуйте еще раз через команду /judges')
 
 
-
 async def edit_problem_jud_after_enter_booknum(message: Message, state: FSMContext, q=1):
     await state.clear()
     try:

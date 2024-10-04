@@ -49,10 +49,10 @@ async def check_list(text, user_id):
                 if group_num is not None:
                     group_num = int(group_num[0].replace('Гр.', '').strip())
 
-                    k7 = await chairman_queries.check_min_category(otherjud + linjud, group_num, active_comp)
+                    k7 = await chairman_queries.check_min_category(otherjud + linjud, group_num, active_comp, area)
                     if k7 != 1:
                         flag7 = 1
-                        s += f'❌Ошибка: {k7}\n\n'
+                        s += k7
 
                     k2 = await chairman_queries.group_id_to_lin_const(active_comp, group_num)
                     if k2 != 0 and k2 is not None:

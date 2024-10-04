@@ -945,18 +945,24 @@ async def group_id_to_lin_const(compId, group_num):
             cur = conn.cursor()
             cur.execute(f"SELECT judges FROM competition_group WHERE compId = {compId} AND groupNumber = {group_num}")
             ans = cur.fetchone()
+            cur.close()
             if ans is None:
                 return 0
-            cur.close()
+
+            if ans['judges'] is None:
+                return 0
+
             return ans['judges']
     except Exception as e:
         print(e)
         return 0
 
 
-async def check_min_category(judges, group_num, compId):
+async def check_min_category(judges, group_num, compId, area):
     try:
         ans = []
+        ans1 = []
+        msg = ''
         conn = pymysql.connect(
             host=config.host,
             port=3306,
@@ -970,10 +976,22 @@ async def check_min_category(judges, group_num, compId):
             cur.execute(
                 f"SELECT minCategoryId FROM competition_group WHERE compId = {compId} AND groupNumber = {group_num}")
             mincat = cur.fetchone()
-            if mincat is None:
-                return 1
+            cur.execute(f"SELECT judgeId FROM competition_group_interdiction WHERE compId = {compId} AND groupNumber = {group_num}")
+            black_list = cur.fetchall()
+            if black_list == ():
+                black_list = []
+            else:
+                black_list = [i['judgeId'] for i in black_list]
 
-            mincat = mincat['minCategoryId']
+
+            if mincat is None:
+                mincat = 0
+            else:
+                mincat = mincat['minCategoryId']
+                if mincat is None:
+                    mincat = 0
+
+
             for i in judges:
                 if len(i.split()) == 2:
                     k = i.split()
@@ -983,9 +1001,15 @@ async def check_min_category(judges, group_num, compId):
                     k = i.split()
                     firstname = ' '.join(k[1::])
                     lastname = k[0]
+                cur.execute(f"SELECT id FROM competition_judges WHERE compId = {compId} AND lastName = '{lastname}' AND firstName = '{firstname}'")
+                jud_id = cur.fetchone()
+                jud_id = jud_id['id']
+                if jud_id in black_list:
+                    ans1 += [i]
 
                 cur.execute(
                     f"SELECT DSFARR_Category_Id FROM competition_judges WHERE compId = {compId} AND firstName = '{firstname}' and lastName = '{lastname}'")
+
                 jud_cat = cur.fetchone()
                 jud_cat = jud_cat['DSFARR_Category_Id']
                 if jud_cat is None:
@@ -995,14 +1019,32 @@ async def check_min_category(judges, group_num, compId):
                     cur.execute(f"SELECT catregoryName from judges_category WHERE categoryId = {jud_cat}")
                     s = cur.fetchone()
                     ans.append(i + f': {s["catregoryName"]}\n')
+
+
             if len(ans) == 0:
-                return 1
+                if len(ans1) == 0:
+                    return 1
+                else:
+                    msg += f'❌Ошибка: {area}: {", ".join(ans1)} - запрещено работать в данной группе\n\n'
+                    return msg
             else:
-                cur.execute(f"SELECT catregoryName from judges_category WHERE categoryId = {mincat}")
-                s = cur.fetchone()
-                s = s["catregoryName"]
-                cur.close()
-                return f"Минимальная категория для работы на турнире: {s}\n{''.join(ans)}".strip('\n')
+                if len(ans1) == 0:
+                    cur.execute(f"SELECT catregoryName from judges_category WHERE categoryId = {mincat}")
+                    s = cur.fetchone()
+                    s = s["catregoryName"]
+                    q = ''.join(ans)
+                    msg = f'❌Ошибка: {area}: Минимальная категория для работы в группе: {s}\n{q}'
+                    cur.close()
+                    return msg
+                else:
+                    cur.execute(f"SELECT catregoryName from judges_category WHERE categoryId = {mincat}")
+                    s = cur.fetchone()
+                    s = s["catregoryName"]
+                    q = ''.join(ans)
+                    msg = '' + f'❌Ошибка: {area}: Минимальная категория для работы в группе: {s}\n{q}\n'
+                    msg += f'❌Ошибка: {area}: {", ".join(ans1)} - запрещено работать в данной группе\n\n'
+                    cur.close()
+                    return msg
 
     except Exception as e:
         print(e)
