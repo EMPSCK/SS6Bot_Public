@@ -206,7 +206,6 @@ async def set_problem_jud_as_is(user_id, jud, booknumber=-1):
 
 async def set_problem_jud_as_is_1(user_id, jud, name=''):
     try:
-        print(jud, name)
         bn = 0
         if name != '':
             i, bn = name.split('|')
@@ -262,7 +261,7 @@ async def set_problem_jud_as_is_1(user_id, jud, name=''):
             DSFARR_Category_Id = person['DSFARR_Category_Id']
             # Если судья уже есть в таблице competition_judges
             cur.execute(
-                f"DELETE FROM competition_judges  WHERE firstName2 = '{firstname}' AND lastName2 = '{lastname}' AND compId = {active_comp}")
+                f"DELETE FROM competition_judges  WHERE ((firstName2 = '{firstname}' AND lastName2 = '{lastname}') OR (firstName = '{firstname}' AND lastName = '{lastname}')) AND compId = {active_comp}")
             conn.commit()
 
             if name != '':
@@ -345,7 +344,6 @@ async def get_similar_judges(jud):
 
 async def add_problemcorrect_jud(booknumber, user_id, name2):
     try:
-        print(booknumber, user_id, name2)
         conn = pymysql.connect(
             host=config.host,
             port=3306,
@@ -799,8 +797,6 @@ async def check_cat_for_enter_book_number(user_id, book_id):
             cur.execute(
                 f"SELECT SPORT_Category, SPORT_CategoryDate, SPORT_CategoryDateConfirm FROM judges WHERE bookNumber = {book_id}")
             info = cur.fetchone()
-            print(info)
-            print(book_id)
             if info is None:
                 return 1
 
@@ -932,8 +928,6 @@ async def del_unactive_comp(tg_id, active_comp):
                 conn.commit()
             cur.close()
     except Exception as e:
-        print(e)
-        print('Ошибка выполнения запроса на удаление записи о прошеднем соревновании')
         return 0
 
 
@@ -1055,4 +1049,3 @@ async def check_min_category(judges, group_num, compId, area):
     except Exception as e:
         print(e)
         return 1
-

@@ -92,7 +92,6 @@ async def cmd_start(call: types.CallbackQuery):
 
 
 
-
 #Очистить список судей в турнире
 @router.message(Command("clear"))
 async def cmd_start(message: Message):
@@ -195,9 +194,6 @@ async def edit_problem_jud(callback: types.CallbackQuery, state: FSMContext, q=1
     try:
         problemJudges = problemjudgesset[callback.from_user.id]
         if problemJudges == [] and current_problem_jud[callback.from_user.id] == 'end':
-            #status = await chairman_queries.check_celebrate(callback.from_user.id)
-            #if status != 0:
-             #   await callback.message.answer(status)
             await callback.message.answer('Загрузка завершена')
             await callback.message.delete()
             return
@@ -205,11 +201,13 @@ async def edit_problem_jud(callback: types.CallbackQuery, state: FSMContext, q=1
         if q == 1:
             current_problem_jud[callback.from_user.id] = problemJudges.pop(0)
 
+        #Не обнаружена запись в бд или невозможно однозначно определить человека
         if current_problem_jud[callback.from_user.id][3] == 2:
             name = current_problem_jud[callback.from_user.id][0] + ' ' + current_problem_jud[callback.from_user.id][1]
             p = current_problem_jud[callback.from_user.id][2]
             await callback.message.edit_text(f"{name}\n{p}\n\nВыберите действие:", reply_markup=chairmans_kb.choose_problem_jud_action_kb)
 
+        #На момент окончания турнира категория недействительна
         elif current_problem_jud[callback.from_user.id][3] == 1:
             name = current_problem_jud[callback.from_user.id][0] + ' ' + current_problem_jud[callback.from_user.id][1]
             p = current_problem_jud[callback.from_user.id][2]
@@ -218,6 +216,7 @@ async def edit_problem_jud(callback: types.CallbackQuery, state: FSMContext, q=1
     except Exception as e:
         print(e)
         await callback.message.answer('При загрузке списка возникла ошибка, попробуйте еще раз через команду /judges')
+
 
 
 async def edit_problem_jud_after_enter_booknum(message: Message, state: FSMContext, q=1):
@@ -247,7 +246,7 @@ async def edit_problem_jud_after_enter_booknum(message: Message, state: FSMConte
         await message.answer('При загрузке списка возникла ошибка, попробуйте еще раз через команду /judges')
 
 
-
+#Отправить как есть судью которого не смогли пробить по бд
 @router.callback_query(F.data == 'take_as_is')
 async def f4(callback: types.CallbackQuery, state: FSMContext):
     try:
@@ -262,7 +261,7 @@ async def f4(callback: types.CallbackQuery, state: FSMContext):
     except:
         await callback.message.answer('При загрузке списка возникла ошибка, попробуйте еще раз через команду /judges')
 
-
+#Отправить как есть судью с проблемой по категории
 @router.callback_query(F.data == 'take_as_is_1')
 async def f4(callback: types.CallbackQuery, state: FSMContext):
     try:
@@ -279,6 +278,7 @@ async def f4(callback: types.CallbackQuery, state: FSMContext):
         await callback.message.answer('При загрузке списка возникла ошибка, попробуйте еще раз через команду /judges')
 
 
+#Пропустить судью в загрузке списка
 @router.callback_query(F.data == 'do_gap')
 async def f4(callback: types.CallbackQuery, state: FSMContext):
     if problemjudgesset[callback.from_user.id] == []:

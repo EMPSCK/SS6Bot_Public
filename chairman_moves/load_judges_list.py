@@ -72,7 +72,6 @@ async def load_list(tg_id, text, compid):
                     CategoryDate = SPORT_CategoryDateConfirm
                 else:
                     CategoryDate = max(SPORT_CategoryDateConfirm, SPORT_CategoryDate)
-
                 date2 = await chairman_queries.get_tournament_date(tg_id)
                 a = date2 - CategoryDate
                 a = a.days
