@@ -11,6 +11,8 @@ from chairman_moves import check_list_judges
 from queries import get_user_status_query
 from queries import chairman_queries
 from queries import general_queries
+import re
+
 router = Router()
 current_jud_point = {}
 jud_problem_list = {}
@@ -56,9 +58,21 @@ async def cmd_start(call: types.CallbackQuery):
             k = name.split()
             lastname1 = k[0]
             firstname1 = ' '.join(k[1::])
-        Chairman_comm_handler.linsets[call.from_user.id][0] = Chairman_comm_handler.linsets[call.from_user.id][
-            0].replace(current_jud_point[call.from_user.id], lastname1 + ' ' + firstname1)
+
+        name = current_jud_point[call.from_user.id]
+        if len(name.split()) == 2:
+            k = name.split()
+            firstname2 = k[1]
+            lastname2 = k[0]
+        else:
+            k = name.split()
+            lastname2 = k[0]
+            firstname2 = ' '.join(k[1::])
+
+        #Chairman_comm_handler.linsets[call.from_user.id][0] = Chairman_comm_handler.linsets[call.from_user.id][0].replace(current_jud_point[call.from_user.id], lastname1 + ' ' + firstname1)
         q = 0
+
+        Chairman_comm_handler.linsets[call.from_user.id][0] = re.sub(rf'{lastname2}\s+{firstname2}', lastname1 + ' ' + firstname1, Chairman_comm_handler.linsets[call.from_user.id][0])
         for row in markup_buttons[call.from_user.id]:
             for b in row:
                 if b.callback_data == f'01jud_rep_{BookNumber}_{lastname}_{firstname}':

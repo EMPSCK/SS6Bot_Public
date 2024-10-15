@@ -1,4 +1,6 @@
 import asyncio
+import re
+
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
@@ -127,11 +129,15 @@ async def edit_linset(callback: types.CallbackQuery):
         # Заменяем всех по шаблону
         for oldindex in range(len(linsets[callback.from_user.id][1])):
             if linsets[callback.from_user.id][2][oldindex] != []:
+                '''
                 text = text.replace(
                     linsets[callback.from_user.id][1][oldindex][0] + ' ' + linsets[callback.from_user.id][1][oldindex][
                         1],
                     linsets[callback.from_user.id][2][oldindex][0]['lastName'] + ' ' +
                     linsets[callback.from_user.id][2][oldindex][0]['firstName'])
+                '''
+                text = re.sub(fr'{linsets[callback.from_user.id][1][oldindex][0]}\s+{linsets[callback.from_user.id][1][oldindex][1]}', linsets[callback.from_user.id][2][oldindex][0]['lastName'] + ' ' + linsets[callback.from_user.id][2][oldindex][0]['firstName'] , text)
+
 
         linsets[callback.from_user.id][0] = text
         if any(i == [] for i in linsets[callback.from_user.id][2]):
@@ -267,8 +273,11 @@ async def cmd_start(call: types.CallbackQuery):
     try:
         BookNumber = int(call.data.replace('replin_', ''))
         name = await chairman_queries.booknumber_to_name(BookNumber)
-        old = current_problem_jud_for_check_lin[call.from_user.id][0] + ' ' + current_problem_jud_for_check_lin[call.from_user.id][1]
-        linsets[call.from_user.id][0] = linsets[call.from_user.id][0].replace(old, name)
+        linsets[call.from_user.id][0] = re.sub(
+            fr'{current_problem_jud_for_check_lin[call.from_user.id][0]}\s+{current_problem_jud_for_check_lin[call.from_user.id][1]}',
+            name, linsets[call.from_user.id][0])
+        #old = current_problem_jud_for_check_lin[call.from_user.id][0] + ' ' + current_problem_jud_for_check_lin[call.from_user.id][1]
+        #linsets[call.from_user.id][0] = linsets[call.from_user.id][0].replace(old, name)
         await edit_linset(call)
     except:
         await call.message.answer('Во время редактирования возникла ошибка. Пожалуйста отправьте список еще раз')

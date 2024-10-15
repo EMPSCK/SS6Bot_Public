@@ -533,13 +533,16 @@ async def check_clubs_match(list):
                     lastname = k[0]
 
                 cur = conn.cursor()
-                cur.execute(f"SELECT Club FROM competition_judges WHERE firstName = '{firstname}' AND lastName = '{lastname}'")
-                club = cur.fetchone()['Club']
-                if club != None:
-                    if club not in clubs:
-                        clubs[club] = [jud]
+                cur.execute(f"SELECT Club, City FROM competition_judges WHERE firstName = '{firstname}' AND lastName = '{lastname}'")
+                info = cur.fetchone()
+                club, city = info['Club'], info['City']
+
+                if club != None and city != None:
+                    name = club + ', ' + city
+                    if name not in clubs:
+                        clubs[name] = [jud]
                     else:
-                        clubs[club].append(jud)
+                        clubs[name].append(jud)
             for club in clubs:
                 if len(clubs[club]) > 1:
                     ans = club + ': ' + ', '.join(clubs[club]) + '\n'
@@ -549,7 +552,7 @@ async def check_clubs_match(list):
                 return ans
 
     except Exception as e:
-        print(e)
+        print(e, 1)
         return 0
 
 
@@ -1038,7 +1041,7 @@ async def check_min_category(judges, group_num, compId, area):
                     q = ''.join(ans)
                     msg = f'❌Ошибка: {area}: Минимальная категория для работы в группе: {s}\n{q}'
                     cur.close()
-                    return msg
+                    return msg + '\n'
                 else:
                     cur.execute(f"SELECT categoryName from judges_category WHERE categoryId = {mincat}")
                     s = cur.fetchone()
