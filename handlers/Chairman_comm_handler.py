@@ -20,7 +20,6 @@ problemjudgesset_for_check_lin ={}
 current_problem_jud_for_check_lin = {}
 bank_for_edit_costyl = {}
 
-
 #Обработка списка от CHAIRPERSON
 @router.message(F.text.lower().contains('линейные судьи'))
 async def f2(message: Message):

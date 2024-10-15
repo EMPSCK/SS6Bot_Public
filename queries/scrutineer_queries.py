@@ -52,3 +52,23 @@ async def get_Chairman(tg_id):
     except:
         print('Ошибка выполнения запроса поиск chairman')
         return 0
+
+
+async def set_active_0(user_id):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        active_comp = await general_queries.get_CompId(user_id)
+        with conn:
+            cur = conn.cursor()
+            cur.execute(f"UPDATE competition_judges set active = 0 WHERE compId = {active_comp}")
+            conn.commit()
+        return 1
+    except:
+        return 0

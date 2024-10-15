@@ -112,7 +112,7 @@ async def get_free_judges(user_id):
         with conn:
             cur = conn.cursor()
             judges_use = config.judges_index[user_id]
-            cur.execute(f"SELECT * FROM competition_judges WHERE compId = {active_comp} AND is_use = 0 ORDER BY lastName")
+            cur.execute(f"SELECT * FROM competition_judges WHERE compId = {active_comp} AND is_use = 0 AND active = 1 ORDER BY lastName")
             judgesComp = cur.fetchall()
             cur.close()
 
@@ -186,16 +186,16 @@ async def set_problem_jud_as_is(user_id, jud, booknumber=-1):
                 SPORT_CategoryDateConfirm = person['SPORT_CategoryDateConfirm']
                 DSFARR_Category_Id = person['DSFARR_Category_Id']
                 federation = person['federation']
-                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `lastName2`, `firstName2`, `DSFARR_Category_Id`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `lastName2`, `firstName2`, `DSFARR_Category_Id`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                 cur.execute(sql, (
                     active_comp, lastname1, firstname1, SecondName, Birth, DSFARR_Category, DSFARR_CategoryDate,
                     WDSF_CategoryDate,
                     RegionId, City, Club, Translit, SPORT_Category, SPORT_CategoryDate, SPORT_CategoryDateConfirm,
-                    federation, Archive, BookNumber, notjud, 0, lastname, firstname, DSFARR_Category_Id))
+                    federation, Archive, BookNumber, notjud, 0, lastname, firstname, DSFARR_Category_Id, 1))
                 conn.commit()
             else:
-                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `notJudges`, `is_use`, `bookNumber`, `lastName2`, `firstName2`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-                cur.execute(sql, (active_comp, lastname, firstname, notjud, 0, booknumber, lastname, firstname))
+                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `notJudges`, `is_use`, `bookNumber`, `lastName2`, `firstName2`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                cur.execute(sql, (active_comp, lastname, firstname, notjud, 0, booknumber, lastname, firstname, 1))
                 conn.commit()
         cur.close()
         return 1
@@ -207,6 +207,8 @@ async def set_problem_jud_as_is(user_id, jud, booknumber=-1):
 async def set_problem_jud_as_is_1(user_id, jud, name=''):
     try:
         bn = 0
+        firstname2 = 'Artem'
+        lastname2 = 'Bulatov'
         if name != '':
             i, bn = name.split('|')
             i = i.split()
@@ -217,6 +219,7 @@ async def set_problem_jud_as_is_1(user_id, jud, name=''):
             else:
                 lastname2 = i[0]
                 firstname2 = ' '.join(i[1::])
+
         active_comp = await general_queries.get_CompId(user_id)
         jud = jud.split()
         if len(jud) == 2:
@@ -261,24 +264,24 @@ async def set_problem_jud_as_is_1(user_id, jud, name=''):
             DSFARR_Category_Id = person['DSFARR_Category_Id']
             # Если судья уже есть в таблице competition_judges
             cur.execute(
-                f"DELETE FROM competition_judges  WHERE ((firstName2 = '{firstname}' AND lastName2 = '{lastname}') OR (firstName = '{firstname}' AND lastName = '{lastname}')) AND compId = {active_comp}")
+                f"DELETE FROM competition_judges  WHERE (((firstName2 = '{firstname}' AND lastName2 = '{lastname}') OR (firstName = '{firstname}' AND lastName = '{lastname}')) OR ((firstName2 = '{firstname2}' AND lastName2 = '{lastname2}') OR (firstName = '{firstname2}' AND lastName = '{lastname2}'))) AND compId = {active_comp}")
             conn.commit()
 
             if name != '':
-                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `firstName2`, `lastName2`, `DSFARR_Category_Id`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `firstName2`, `lastName2`, `DSFARR_Category_Id`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                 cur.execute(sql, (
                     active_comp, lastname, firstname, SecondName, Birth, DSFARR_Category, DSFARR_CategoryDate,
                     WDSF_CategoryDate,
                     RegionId, City, Club, Translit, SPORT_Category, SPORT_CategoryDate, SPORT_CategoryDateConfirm,
-                    federation, Archive, BookNumber, notjud, 0, firstname2, lastname2, DSFARR_Category_Id))
+                    federation, Archive, BookNumber, notjud, 0, firstname2, lastname2, DSFARR_Category_Id, 1))
                 conn.commit()
             else:
-                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `DSFARR_Category_Id`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `DSFARR_Category_Id`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                 cur.execute(sql, (
                     active_comp, lastname, firstname, SecondName, Birth, DSFARR_Category, DSFARR_CategoryDate,
                     WDSF_CategoryDate,
                     RegionId, City, Club, Translit, SPORT_Category, SPORT_CategoryDate, SPORT_CategoryDateConfirm,
-                    federation, Archive, BookNumber, notjud, 0, DSFARR_Category_Id))
+                    federation, Archive, BookNumber, notjud, 0, DSFARR_Category_Id, 1))
                 conn.commit()
             cur.close()
             return 1
@@ -389,12 +392,12 @@ async def add_problemcorrect_jud(booknumber, user_id, name2):
                 f"DELETE FROM competition_judges WHERE firstName2 = '{firstname2}' AND lastName2 = '{lastname2}' AND compId = {active_comp}")
             conn.commit()
 
-            sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `firstName2`, `lastName2`, `DSFARR_Category_Id`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `SecondName`, `Birth`, `DSFARR_Category`, `DSFARR_CategoryDate`, `WDSF_CategoryDate`, `RegionId`, `City`, `Club`, `Translit`, `SPORT_Category`, `SPORT_CategoryDate`, `SPORT_CategoryDateConfirm`, `federation`, `Archive`, `bookNumber`, `notJudges`, `is_use`, `firstName2`, `lastName2`, `DSFARR_Category_Id`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
             cur.execute(sql, (
                 active_comp, last_name, name, SecondName, Birth, DSFARR_Category, DSFARR_CategoryDate,
                 WDSF_CategoryDate,
                 RegionId, City, Club, Translit, SPORT_Category, SPORT_CategoryDate, SPORT_CategoryDateConfirm,
-                federation, Archive, booknumber, notjud, 0, firstname2, lastname2, DSFARR_Category_Id))
+                federation, Archive, booknumber, notjud, 0, firstname2, lastname2, DSFARR_Category_Id, 1))
             conn.commit()
     except Exception as e:
         print(e)
@@ -414,7 +417,7 @@ async def for_free(user_id):
         )
         with conn:
             cur = conn.cursor()
-            cur.execute(f"SELECT * FROM competition_judges WHERE compId = {active_comp} AND is_use = 0 ORDER BY lastName")
+            cur.execute(f"SELECT * FROM competition_judges WHERE compId = {active_comp} AND is_use = 0 AND active = 1 ORDER BY lastName")
             judgesComp = cur.fetchall()
             cur.close()
 
@@ -453,7 +456,7 @@ async def get_similar_lin_judges(jud, user_id):
         )
         with conn:
             cur = conn.cursor()
-            cur.execute(f"SELECT * FROM competition_judges WHERE compId = {active_comp}")
+            cur.execute(f"SELECT * FROM competition_judges WHERE compId = {active_comp} AND active = 1")
             judges = cur.fetchall()
             for el in judges:
                 elfirstname = el['firstName']
@@ -748,7 +751,7 @@ async def get_free_judges_for_wrong(user_id, text):
         with conn:
             cur = conn.cursor()
             judges_lst = await check_list_judges.get_all_judges(text)
-            cur.execute(f"SELECT * FROM competition_judges WHERE is_use = 0 AND compId = {active_comp}")
+            cur.execute(f"SELECT * FROM competition_judges WHERE is_use = 0 AND compId = {active_comp} and active = 1")
             free = cur.fetchall()
             if len(free) == 0:
                 return 'свободных судей нет'
@@ -877,7 +880,7 @@ async def set_is_use_0(user_id):
         )
         with conn:
             cur = conn.cursor()
-            cur.execute(f"update competition_judges set is_use = 0 where compId = {active_comp}")
+            cur.execute(f"update competition_judges set is_use = 0 where compId = {active_comp} and active = 1")
             conn.commit()
     except Exception as e:
         print(e)

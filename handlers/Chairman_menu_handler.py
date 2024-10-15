@@ -1,5 +1,4 @@
 import re
-
 from aiogram import Router, F
 from aiogram import types
 from keyboards import chairmans_kb
@@ -93,7 +92,7 @@ async def cmd_start(call: types.CallbackQuery):
 
 
 #Очистить список судей в турнире
-@router.message(Command("clear"))
+@router.message(Command("clean"))
 async def cmd_start(message: Message):
     user_status = await get_user_status_query.get_user_status(message.from_user.id)
     if user_status == 3 or user_status == 2:

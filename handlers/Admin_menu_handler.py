@@ -7,6 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 from admin_moves import update_fttsar_judges
+from queries import scrutineer_queries
 router = Router()
 tg_id_to_CompId = {}
 
@@ -121,3 +122,4 @@ from admin_moves import filemanager
 @router.message(Command("start_files_update"))
 async def cmd_start(message: Message):
     return await filemanager.filesmanager(message)
+

@@ -10,6 +10,7 @@ from keyboards import scrutineer_kb
 from keyboards import admins_kb
 from queries import chairman_queries
 from aiogram.fsm.context import FSMContext
+from admin_moves import update_fttsar_judges
 router = Router()
 
 
@@ -88,3 +89,17 @@ async def cmd_start(callback: types.CallbackQuery):
         await callback.message.edit_text(
             f"🗓Статус: {user_status}\nАктивное соревнование: {info}\nИзменений не обнаружено",
             reply_markup=chairmans_kb.update_status_kb)
+
+
+
+
+@router.message(Command("updateftsarrlist"))
+async def update_ftsarr_judges_list(message: types.Message):
+    access = [6887839538, 834140698, 363846616, 5824158064]
+    if message.from_user.id in access:
+        await message.answer('Запущен процесс обновления данных\nПримерное время ожидания: 5 мин.')
+        status = await update_fttsar_judges.update_judges_list()
+        if status == 1:
+            await message.answer('Процесс обновления данных завершен')
+        else:
+            await message.answer('❌Ошибка')
