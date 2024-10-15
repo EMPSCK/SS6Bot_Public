@@ -127,4 +127,5 @@ async def load_list(tg_id, text, compid):
         return 1
     except Exception as e:
         print(e)
+        print(index)
         return 0

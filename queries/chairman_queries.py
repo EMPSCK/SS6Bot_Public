@@ -425,7 +425,8 @@ async def for_free(user_id):
             if judgesComp == ():
                 return 'Свободных судей нет'
             #judges_free = name + '\n\n' +'\n'.join([i['lastName'] + ' ' + i['firstName'] + ', ' + str(i['City']) for i in judgesComp])
-            judges_free = name + '\n\n'
+            n = len(judgesComp)
+            judges_free = name + '\n' + f'Общее число: {n}' + '\n\n'
             for i in judgesComp:
                 city = i['City']
                 if city is None:

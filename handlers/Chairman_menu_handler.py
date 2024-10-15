@@ -120,7 +120,11 @@ async def cmd_start(message: Message):
             if status == 0:
                 await message.answer('❌Ошибка')
             else:
-                await message.answer(status)
+                if len(status) > 4096:
+                    for x in range(0, len(status), 4096):
+                        await message.answer(status[x:x + 4096])
+                else:
+                    await message.answer(status)
         else:
             await message.answer('❌Ошибка. Выбранное соревнование неактивно')
 
