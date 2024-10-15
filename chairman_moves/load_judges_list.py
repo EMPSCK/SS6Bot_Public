@@ -31,15 +31,27 @@ async def load_list(tg_id, text, compid):
                     last_name = index[0]
                     name = ' '.join(index[1::])
 
+
+                # Проверяем есть ли запись в competition_judges
+                if cur.execute(
+                    f"SELECT firstName from competition_judges WHERE compId = {compid} and ((lastName2 = '{last_name}' and firstName2 = '{name}') OR (lastName = '{last_name}' and firstName = '{name}'))") == 1:
+                    cur.execute(
+                        f"UPDATE competition_judges SET active = 1 WHERE compId = {compid} and ((lastName2 = '{last_name}' and firstName2 = '{name}') OR (lastName = '{last_name}' and firstName = '{name}'))")
+                    conn.commit()
+                    continue
+
                 notjud = re.match(r'^[a-zA-Z]+\Z', name.replace(' ', '')) is not None
 
                 cur.execute(f"SELECT * FROM judges WHERE FirstName = '{name}' AND LastName = '{last_name}'")
                 person = cur.fetchall()
+
                 if len(person) == 0:
                     judges_promlem.append([last_name, name, 'Не обнаружена запись в бд', 2])
                     names.append(last_name+ ' ' +name)
                     continue
                 elif len(person) > 1:
+                    # Проверяем есть ли запись в competition_judges
+
                     judges_promlem.append([last_name, name, 'Невозможно однозначно определить судью', 2])
                     names.append(last_name + ' ' + name)
                     continue

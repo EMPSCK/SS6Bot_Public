@@ -439,7 +439,6 @@ async def for_free(user_id):
         return 0
 
 
-
 async def get_similar_lin_judges(jud, user_id):
     try:
         similar_judges = []
