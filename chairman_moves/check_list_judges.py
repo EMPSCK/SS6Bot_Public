@@ -275,7 +275,7 @@ async def transform_linlist(text, judges, user_id):
                     lastname, firstname = jud
                     cur.execute(f"SELECT firstName, lastName FROM competition_judges WHERE firstName2 = '{firstname}' and lastName2 = '{lastname}' and compId = {active_comp}")
                     name = cur.fetchone()
-                    text = text.replace(lastname + ' ' + firstname, name['lastName'] + ' ' + name['firstName'] )
+                    text = text.replace(lastname + ' ' + firstname, name['lastName'] + ' ' + name['firstName'])
             return text
     except Exception as e:
         print(e)

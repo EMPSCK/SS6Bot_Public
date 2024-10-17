@@ -18,7 +18,7 @@ async def cmd_start(call: types.CallbackQuery):
         await chairman_queries.del_unactive_comp(call.from_user.id, active_comp)
         info = await general_queries.CompId_to_name(active_comp)
         await call.message.edit_text(
-            f"👋Добро пожаловать в scrutineer интерфейс бота SS6\nАктивное соревнование: {info}",
+            f"👋Добро пожаловать в scrutineer интерфейс бота SS6\n\n/help - список всех команд\nАктивное соревнование: {info}",
             reply_markup=scrutineer_kb.menu_kb)
 
 
@@ -32,7 +32,7 @@ async def set_active_comp_S(call: types.CallbackQuery):
         markup = await scrutineer_kb.gen_list_comp(call.from_user.id)
         info = await general_queries.CompId_to_name(active_comp)
         await call.message.edit_text(
-            f"👋Добро пожаловать в scrutineer интерфейс бота SS6\nАктивное соревнование: {info}",
+            f"👋Добро пожаловать в scrutineer интерфейс бота SS6\n\n/help - список всех команд\nАктивное соревнование: {info}",
             reply_markup=markup)
 
 
@@ -58,7 +58,7 @@ async def cmd_start(call: types.CallbackQuery):
             active_comp = confirm_tour_id_S[call.from_user.id]
             info = await general_queries.CompId_to_name(active_comp)
             await call.message.edit_text(
-                f"👋Добро пожаловать в scrutineer интерфейс бота SS6\nАктивное соревнование: {info}",
+                f"👋Добро пожаловать в scrutineer интерфейс бота SS6\n\n/help - список всех команд\nАктивное соревнование: {info}",
                 reply_markup=scrutineer_kb.menu_kb)
         except:
             await call.message.answer('❌Ошибка. Попробуйте еще раз через /start')
@@ -72,7 +72,7 @@ async def cmd_start(call: types.CallbackQuery):
         info = await general_queries.CompId_to_name(active_comp)
         markup = await scrutineer_kb.gen_list_comp(call.from_user.id)
         await call.message.edit_text(
-            f"👋Добро пожаловать в scrutineer интерфейс бота SS6\nАктивное соревнование: {info}",
+            f"👋Добро пожаловать в scrutineer интерфейс бота SS6\n\n/help - список всех команд\nАктивное соревнование: {info}",
             reply_markup=markup)
 
 

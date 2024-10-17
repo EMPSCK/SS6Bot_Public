@@ -71,11 +71,13 @@ edit_02_kb = InlineKeyboardMarkup(inline_keyboard=[edit_02_b])
 
 async def get_markup_EV(user_id, text):
     judges_replace = await chairman_queries.get_free_judges_for_wrong(user_id, text)
+    print(judges_replace)
     sim_jud_buttons = []
     sjb5 = []
     for jud_rep in range(len(judges_replace)):
         i = jud_rep
         jud_rep = judges_replace[jud_rep]
+        print(jud_rep)
         if jud_rep['City'] is None:
             k = 'не установлено'
         else:

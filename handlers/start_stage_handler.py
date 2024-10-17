@@ -28,14 +28,14 @@ async def cmd_start(message: Message, state: FSMContext):
         active_comp = await general_queries.get_CompId(message.from_user.id)
         await chairman_queries.del_unactive_comp(message.from_user.id, active_comp)
         info = await general_queries.CompId_to_name(active_comp)
-        await message.answer(f"👋Добро пожаловать в scrutineer интерфейс бота SS6\nАктивное соревнование: {info}", reply_markup=scrutineer_kb.menu_kb)
+        await message.answer(f"👋Добро пожаловать в scrutineer интерфейс бота SS6\n\n/help - список всех команд\nАктивное соревнование: {info}", reply_markup=scrutineer_kb.menu_kb)
 
     #chairman
     if user_status == 3:
         active_comp = await general_queries.get_CompId(message.from_user.id)
         await chairman_queries.del_unactive_comp(message.from_user.id, active_comp)
         info = await general_queries.CompId_to_name(active_comp)
-        await message.answer(f"👋Добро пожаловать в chairman интерфейс бота SS6\n\n /judges - отправить список судей\nАктивное соревнование: {info}", reply_markup = chairmans_kb.menu_kb)
+        await message.answer(f"👋Добро пожаловать в chairman интерфейс бота SS6\n\n/judges - отправить список судей\n/help - список всех команд\nАктивное соревнование: {info}", reply_markup = chairmans_kb.menu_kb)
 
     if user_status == 0:
         await message.answer("👋Добро пожаловать в интерфейс бота SS6\n\nДля начала работы необходимо пройти регистрацию в системе", reply_markup=chairmans_kb.send_id_to_admin_kb)
@@ -74,7 +74,7 @@ async def cmd_start(callback: types.CallbackQuery):
             active_comp = await general_queries.get_CompId(callback.from_user.id)
             info = await general_queries.CompId_to_name(active_comp)
             await callback.message.edit_text(
-                f"👋Добро пожаловать в scrutineer интерфейс бота SS6\nАктивное соревнование: {info}",
+                f"👋Добро пожаловать в scrutineer интерфейс бота SS6\n\n/help - список всех команд\nАктивное соревнование: {info}",
                 reply_markup=scrutineer_kb.menu_kb)
 
         # chairman
@@ -82,7 +82,7 @@ async def cmd_start(callback: types.CallbackQuery):
             active_comp = await general_queries.get_CompId(callback.from_user.id)
             info = await general_queries.CompId_to_name(active_comp)
             await callback.message.edit_text(
-                f"👋Добро пожаловать в chairman интерфейс бота SS6\n\n /judges - отправить список судей\nАктивное соревнование: {info}",
+                f"👋Добро пожаловать в chairman интерфейс бота SS6\n\n/judges - отправить список судей\n/help - список всех команд\nАктивное соревнование: {info}",
                 reply_markup=chairmans_kb.menu_kb)
 
     else:
