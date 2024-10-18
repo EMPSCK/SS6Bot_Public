@@ -71,7 +71,9 @@ edit_02_kb = InlineKeyboardMarkup(inline_keyboard=[edit_02_b])
 
 async def get_markup_EV(user_id, text):
     judges_replace = await chairman_queries.get_free_judges_for_wrong(user_id, text)
-    print(judges_replace)
+    if judges_replace == 'свободных судей нет':
+        return 0
+
     sim_jud_buttons = []
     sjb5 = []
     for jud_rep in range(len(judges_replace)):

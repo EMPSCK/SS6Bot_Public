@@ -26,19 +26,20 @@ bank_for_edit_costyl = {}
 @router.message(F.text.lower().contains('линейные судьи'))
 async def f2(message: Message):
     user_status = await get_user_status_query.get_user_status(message.from_user.id)
-    try:
-        linsets.pop(message.from_user.id, None)
-        problemjudgesset_for_check_lin.pop(message.from_user.id, None)
-        current_problem_jud_for_check_lin.pop(message.from_user.id, None)
-        Chairman_comm_handler_02.current_jud_point.pop(message.from_user.id, None)
-        Chairman_comm_handler_02.jud_problem_list.pop(message.from_user.id, None)
-        Chairman_comm_handler_02.to_index_future.pop(message.from_user.id, None)
-        Chairman_comm_handler_02.markup_buttons.pop(message.from_user.id, None)
-    except:
-        pass
 
 
     if user_status == 3:
+        try:
+            linsets.pop(message.from_user.id, None)
+            problemjudgesset_for_check_lin.pop(message.from_user.id, None)
+            current_problem_jud_for_check_lin.pop(message.from_user.id, None)
+            Chairman_comm_handler_02.current_jud_point.pop(message.from_user.id, None)
+            Chairman_comm_handler_02.jud_problem_list.pop(message.from_user.id, None)
+            Chairman_comm_handler_02.to_index_future.pop(message.from_user.id, None)
+            Chairman_comm_handler_02.markup_buttons.pop(message.from_user.id, None)
+        except:
+            pass
+
         if await chairman_queries.check_have_tour_date(message.from_user.id) == 0:
             await message.answer('❌Ошибка. Установите активный турнир')
             return
@@ -146,6 +147,7 @@ async def edit_linset(callback: types.CallbackQuery):
             a2 = linsets[callback.from_user.id][2]
             problem = f"🤔{', '.join([a1[i][0] +  ' ' + a1[i][1] for i in range(len(a1)) if a2[i] == []])}: не обнаружены в бд. Пожалуйста загрузите дополнительных судей через /judges или отредактируйте сообщение"
             return await Chairman_comm_handler_02.edit_linlist(callback, problem)
+
         await callback.message.edit_text(text)
         res, msg = await check_list_judges.check_list(text, callback.from_user.id)
         linsets[callback.from_user.id][3] = msg
