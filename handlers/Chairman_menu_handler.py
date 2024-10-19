@@ -164,10 +164,11 @@ async def f2(message: Message, state: FSMContext):
     compid = await general_queries.get_CompId(message.from_user.id)
     status = await load_judges_list.load_list(message.from_user.id, message.text, compid)
     if status == 1:
-        #status1 = await chairman_queries.check_celebrate(callback.from_user.id)
-        #if status1 != 0:
-         #   await message.answer(status)
+        status1 = await chairman_queries.check_celebrate(message.from_user.id)
+        if status1 != 0:
+            await message.answer(status1)
         await message.answer('Список загружен')
+
     elif type(status) == tuple:
         problem, names = status
         a = ', '.join([i for i in names])
@@ -197,6 +198,9 @@ async def edit_problem_jud(callback: types.CallbackQuery, state: FSMContext, q=1
     try:
         problemJudges = problemjudgesset[callback.from_user.id]
         if problemJudges == [] and current_problem_jud[callback.from_user.id] == 'end':
+            status1 = await chairman_queries.check_celebrate(callback.from_user.id)
+            if status1 != 0:
+                await callback.message.answer(status1)
             await callback.message.answer('Загрузка завершена')
             await callback.message.delete()
             return
@@ -226,9 +230,9 @@ async def edit_problem_jud_after_enter_booknum(message: Message, state: FSMConte
     try:
         problemJudges = problemjudgesset[message.from_user.id]
         if problemJudges == [] and current_problem_jud[message.from_user.id] == 'end':
-            #status = await chairman_queries.check_celebrate(message.from_user.id)
-            #if status != 0:
-             #   await message.answer(status)
+            status1 = await chairman_queries.check_celebrate(message.from_user.id)
+            if status1 != 0:
+                await message.answer(status1)
             await message.answer('Загрузка завершена')
             return
         if q == 1:

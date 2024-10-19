@@ -842,6 +842,8 @@ async def check_cat_for_enter_book_number(user_id, book_id):
 
 async def check_celebrate(user_id):
     try:
+        msg = '🥳Дни рождения:\n\n'
+        flag = 0
         active_comp = await general_queries.get_CompId(user_id)
         conn = pymysql.connect(
             host=config.host,
@@ -856,15 +858,24 @@ async def check_celebrate(user_id):
             cur.execute(f"SELECT date1, date2 FROM competition WHERE compId = {active_comp}")
             ans = cur.fetchone()
             date1, date2 = ans['date1'], ans['date2']
+            date1 = str(date1).split('-')
+            date2 = str(date2).split('-')
 
-            cur.execute(f"SELECT lastName, firstName, Birth FROM competition_judges WHERE compId = {active_comp} AND Birth IS NOT NULL")
+            cur.execute(f"SELECT lastName, firstName, Birth, City FROM competition_judges WHERE compId = {active_comp} AND Birth IS NOT NULL AND active = 1")
             ans = cur.fetchall()
             for jud in ans:
-                jud['Birth'].year = date1.year
                 if type(jud['Birth']) != str:
-                    if date1 <= jud['Birth'] <= date2:
-                        print(jud)
-            return 0
+                    judBirth = str(jud['Birth']).split('-')
+                    year = judBirth[0]
+                    judBirth[0] = date2[0]
+                    judBirth = datetime.datetime.strptime('-'.join(judBirth), '%Y-%m-%d').date()
+                    if datetime.datetime.strptime('-'.join(date1), '%Y-%m-%d').date() <= judBirth <= datetime.datetime.strptime('-'.join(date2), '%Y-%m-%d').date():
+                        flag = 1
+                        msg += f"{jud['lastName']} {jud['firstName']}, {jud['City']}, {jud['Birth']}\n"
+            if flag == 1:
+                return msg
+            else:
+                return 0
     except Exception as e:
         print(e)
         return 0
