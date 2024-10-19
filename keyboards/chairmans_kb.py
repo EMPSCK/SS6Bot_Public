@@ -79,7 +79,6 @@ async def get_markup_EV(user_id, text):
     for jud_rep in range(len(judges_replace)):
         i = jud_rep
         jud_rep = judges_replace[jud_rep]
-        print(jud_rep)
         if jud_rep['City'] is None:
             k = 'не установлено'
         else:

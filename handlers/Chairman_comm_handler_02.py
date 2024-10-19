@@ -26,7 +26,6 @@ async def edit_linlist(call, problem):
     jud_problem_list[call.from_user.id] = problem
     markup_buttons[call.from_user.id] = await chairmans_kb.get_markup_EV(call.from_user.id, Chairman_comm_handler.linsets[call.from_user.id][0])
     len_markup_buttons = 1
-
     if markup_buttons == 0:
         len_markup_buttons = 0
 
