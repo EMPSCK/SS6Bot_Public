@@ -129,8 +129,9 @@ async def check_list(text, user_id):
             return (0, s)
 
     except Exception as e:
-        print('Ошибка проверки списка судей на валидность1')
+        print('Ошибка проверки списка судей на валидность')
         print(e)
+        print(text)
         return (2, '')
 
 
@@ -250,6 +251,7 @@ async def get_parse(text, user_id):
 
     if text[-1] == ',':
         text = text[0:-1] + '.'
+    text = text.replace(',,', ',')
     return judges_problem, judges_problem_db, text
 
 
