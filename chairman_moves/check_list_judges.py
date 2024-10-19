@@ -22,7 +22,6 @@ async def check_list(text, user_id):
         areas = [[i[j].strip().strip('\n').strip('.') for j in range(len(i))] for i in areas]
         sumjudes = []
 
-
         # На каждой из площадок получаем линейных и остальных судей
         for areaindex in range(len(areas)):
             area = areas[areaindex]
@@ -49,10 +48,12 @@ async def check_list(text, user_id):
                 if group_num is not None:
                     group_num = int(group_num[0].replace('Гр.', '').strip())
 
+
                     k7 = await chairman_queries.check_min_category(otherjud + linjud, group_num, active_comp, area)
                     if k7 != 1:
                         flag7 = 1
                         s += k7
+
 
                     k2 = await chairman_queries.group_id_to_lin_const(active_comp, group_num)
                     if k2 != 0 and k2 is not None:
@@ -61,7 +62,6 @@ async def check_list(text, user_id):
 
                 if '' in otherjud:
                     otherjud = []
-
 
                 k = await chairman_queries.check_category_date(otherjud + linjud, user_id)
                 if k != 0:
@@ -131,7 +131,6 @@ async def check_list(text, user_id):
     except Exception as e:
         print('Ошибка проверки списка судей на валидность')
         print(e)
-        print(text)
         return (2, '')
 
 
@@ -183,10 +182,38 @@ async def get_parse(text, user_id):
                     firstname = i.replace(lastname, '')
                     text = text.replace(lastname + firstname, lastname + ' ' + firstname)
                 elif len(i.split()) > 2:
-                    peopls = [['cdcdcd', 'cdcdc']]
+                    peopls = []
                     k = i.split()
-                    p = len(k) - 1
+                    p = 0
                     for j in range(len(k)):
+                        if p == 1:
+                            p = 0
+                            if k[j] != re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0]:
+                                lastname = re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0].strip()
+                                firstname = k[j].replace(lastname, '').strip()
+                                text = text.replace(lastname + firstname, lastname + ' ' + firstname + ',')
+                                peopls.append([lastname, firstname])
+                            continue
+
+                        if k[j] != re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0]:
+                            lastname = re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0].strip()
+                            firstname = k[j].replace(lastname, '').strip()
+                            text = text.replace(lastname + firstname, lastname + ' ' + firstname + ',')
+                            peopls.append([lastname, firstname])
+                        else:
+                            if j == len(k) - 1:
+                                pass
+                            else:
+                                lastname, firstname = k[j], k[j + 1]
+                                text = re.sub(fr'\s+{lastname}\s+{firstname}', ' ' + lastname + ' ' + firstname + ',', text)
+                                peopls.append([lastname, firstname])
+                                p = 1
+
+                        if text[-1] == ',':
+                            text = text[0:-1] + '.'
+
+                        text = text.replace(',,', ',')
+                        '''
                         if j == p and k[j] != re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0]:
                             lastname = re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0].strip()
                             firstname = k[j].replace(lastname, '').strip()
@@ -200,14 +227,14 @@ async def get_parse(text, user_id):
                             if j == p - 1:
                                 text = text.replace(lastname + ' ' + firstname, lastname + ' ' + firstname)
                             else:
-                                text = text.replace(lastname + ' ' + firstname, lastname + ' ' + firstname + ',')
+                                text = re.sub(fr'{lastname}\s+{firstname},', lastname + ' ' + firstname + ',', text)
 
                         elif j != p and k[j] != re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0]:
                             lastname = re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0].strip()
                             firstname = k[j].replace(lastname, '').strip()
                             text = text.replace(lastname + firstname, lastname + ' ' + firstname + ',')
                             peopls.append([lastname, firstname])
-                    peopls.pop(0)
+                        '''
                     for people in peopls:
                         lastname, firstname = people
                         st1 = cur.execute(f"SELECT firstName, lastName From competition_judges WHERE (lastName = '{lastname}' OR lastName2 = '{lastname}') AND CompId = {active_comp} AND active = 1")
@@ -249,9 +276,6 @@ async def get_parse(text, user_id):
                         if [lastname, firstname] not in judges_problem_db:
                             judges_problem_db.append([lastname, firstname])
 
-    if text[-1] == ',':
-        text = text[0:-1] + '.'
-    text = text.replace(',,', ',')
     return judges_problem, judges_problem_db, text
 
 

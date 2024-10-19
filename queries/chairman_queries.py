@@ -997,7 +997,6 @@ async def check_min_category(judges, group_num, compId, area):
                 if mincat is None:
                     mincat = 0
 
-
             for i in judges:
                 if len(i.split()) == 2:
                     k = i.split()
