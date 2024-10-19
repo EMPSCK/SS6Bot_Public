@@ -25,14 +25,12 @@ async def edit_linlist(call, problem):
     problem = problem[1::].split(', ')
     jud_problem_list[call.from_user.id] = problem
     markup_buttons[call.from_user.id] = await chairmans_kb.get_markup_EV(call.from_user.id, Chairman_comm_handler.linsets[call.from_user.id][0])
+    len_markup_buttons = 1
 
     if markup_buttons == 0:
         len_markup_buttons = 0
-    else:
-        len_markup_buttons = (len(markup_buttons) - 1)*2
 
-
-    if len(problem) > len_markup_buttons:
+    if len_markup_buttons == 0:
         await call.message.answer('❌Редактирование невозможно. Отсутсвует необходимое количесво свободных судей в таблице')
         return
 
