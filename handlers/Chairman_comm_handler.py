@@ -26,7 +26,7 @@ bank_for_edit_costyl = {}
 @router.message(F.text.lower().contains('линейные судьи'))
 async def f2(message: Message):
     user_status = await get_user_status_query.get_user_status(message.from_user.id)
-    if user_status == 3:
+    if user_status == 3 or user_status == 2:
         try:
             linsets.pop(message.from_user.id, None)
             problemjudgesset_for_check_lin.pop(message.from_user.id, None)

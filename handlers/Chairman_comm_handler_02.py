@@ -111,7 +111,7 @@ async def cmd_start(call: types.CallbackQuery):
 #Копия обработчика линейных списков
 async def f2(call, text):
     user_status = await get_user_status_query.get_user_status(call.from_user.id)
-    if user_status == 3:
+    if user_status == 3 or user_status == 2:
         res, msg = await check_list_judges.check_list(text, call.from_user.id)
         Chairman_comm_handler.linsets[call.from_user.id][3] = msg
         await chairman_queries.set_free_judges(call.from_user.id)

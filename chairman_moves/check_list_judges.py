@@ -26,6 +26,7 @@ async def check_list(text, user_id):
         for areaindex in range(len(areas)):
             area = areas[areaindex]
             if areaindex == 0 and len(area) == 1 and ('ГСС' in area[0] or 'ГСек' in area[0]):
+                continue
                 area[0] = area[0].split('\n')
                 for i in range(len(area[0])):
                     area[0][i] = area[0][i].replace('ГСС. ', '')
@@ -156,6 +157,7 @@ async def get_parse(text, user_id):
         for areaindex in range(len(areas)):
             area = areas[areaindex]
             if areaindex == 0 and len(area) == 1 and ('ГСС' in area[0] or 'ГСек' in area[0]):
+                continue
                 area[0] = area[0].split('\n')
                 for i in range(len(area[0])):
                     area[0][i] = area[0][i].replace('ГСС. ', '')
@@ -213,6 +215,7 @@ async def get_parse(text, user_id):
                             text = text[0:-1] + '.'
 
                         text = text.replace(',,', ',')
+                        text = '\n\n'.join([i.strip(',') for i in re.split('\n\s{0,}\n', text)])
                         '''
                         if j == p and k[j] != re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0]:
                             lastname = re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0].strip()
@@ -318,6 +321,7 @@ async def get_all_judges(text):
     for areaindex in range(len(areas)):
         area = areas[areaindex]
         if areaindex == 0 and len(area) == 1 and ('ГСС' in area[0] or 'ГСек' in area[0]):
+            continue
             area[0] = area[0].split('\n')
             for i in range(len(area[0])):
                 area[0][i] = area[0][i].replace('ГСС. ', '')
