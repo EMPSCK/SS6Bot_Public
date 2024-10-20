@@ -757,7 +757,7 @@ async def get_free_judges_for_wrong(user_id, text):
         with conn:
             cur = conn.cursor()
             judges_lst = await check_list_judges.get_all_judges(text)
-            cur.execute(f"SELECT * FROM competition_judges WHERE is_use = 0 AND compId = {active_comp} and active = 1")
+            cur.execute(f"SELECT * FROM competition_judges WHERE compId = {active_comp} and active = 1")
             free = cur.fetchall()
             if len(free) == 0:
                 return 'свободных судей нет'

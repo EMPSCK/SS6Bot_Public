@@ -70,6 +70,7 @@ edit_02_kb = InlineKeyboardMarkup(inline_keyboard=[edit_02_b])
 
 
 async def get_markup_EV(user_id, text):
+
     judges_replace = await chairman_queries.get_free_judges_for_wrong(user_id, text)
     if judges_replace == 'свободных судей нет':
         return 0

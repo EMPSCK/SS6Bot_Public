@@ -372,3 +372,4 @@ async def cmd_start(call: types.CallbackQuery, state: FSMContext):
     except:
         await state.clear()
         await call.message.answer('При загрузке списка возникла ошибка, попробуйте еще раз через команду /judges')
+
