@@ -136,7 +136,7 @@ async def get_free_judges(user_id):
         print('Ошибка выполнения запроса на установку свободных судей')
         return 0
 
-
+from handlers import Chairman_menu_handler
 async def set_problem_jud_as_is(user_id, jud, booknumber=-1):
     try:
         active_comp = await general_queries.get_CompId(user_id)
@@ -147,6 +147,8 @@ async def set_problem_jud_as_is(user_id, jud, booknumber=-1):
         else:
             lastname = jud[0]
             firstname = ' '.join(jud[1::])
+
+        Chairman_menu_handler.last_added_judges[user_id].append([lastname, firstname])
         conn = pymysql.connect(
             host=config.host,
             port=3306,
@@ -204,6 +206,7 @@ async def set_problem_jud_as_is(user_id, jud, booknumber=-1):
         print('Ошибка выполнения запроса на установку проблемных судей')
         return 0
 
+from handlers import Chairman_menu_handler
 async def set_problem_jud_as_is_1(user_id, jud, name=''):
     try:
         bn = 0
@@ -228,7 +231,7 @@ async def set_problem_jud_as_is_1(user_id, jud, name=''):
         else:
             lastname = jud[0]
             firstname = ' '.join(jud[1::])
-
+        Chairman_menu_handler.last_added_judges[user_id].append([lastname, firstname])
         conn = pymysql.connect(
             host=config.host,
             port=3306,
@@ -385,7 +388,7 @@ async def add_problemcorrect_jud(booknumber, user_id, name2):
             federation = person[0]['federation']
             notjud = re.match(r'^[a-zA-Z]+\Z', name.replace(' ', '')) is not None
             DSFARR_Category_Id = person[0]['DSFARR_Category_Id']
-
+            Chairman_menu_handler.last_added_judges[user_id].append([last_name, name])
 
             # Если судья уже есть в таблице competition_judges
             cur.execute(
@@ -840,7 +843,10 @@ async def check_cat_for_enter_book_number(user_id, book_id):
         print(e)
         return 0
 
-async def check_celebrate(user_id):
+def sort_key(list):
+    return list[0], list[1]
+
+async def check_celebrate(user_id, jl):
     try:
         msg = '🥳Дни рождения:\n\n'
         flag = 0
@@ -858,24 +864,29 @@ async def check_celebrate(user_id):
             cur.execute(f"SELECT date1, date2 FROM competition WHERE compId = {active_comp}")
             ans = cur.fetchone()
             date1, date2 = ans['date1'], ans['date2']
-            date1 = str(date1).split('-')
+            date1 = datetime.datetime.now().date()
             date2 = str(date2).split('-')
+            jl.sort(key= lambda x: x[0])
+            for judL in jl:
+                lastname, firstname = judL
+                cur.execute(f"SELECT lastName, firstName, Birth, City FROM competition_judges WHERE compId = {active_comp} AND Birth IS NOT NULL AND active = 1 AND ((firstName = '{firstname}'AND lastName = '{lastname}') OR (firstName2 = '{firstname}'AND lastName2 = '{lastname}'))")
+                jud = cur.fetchone()
+                if jud is None:
+                    continue
 
-            cur.execute(f"SELECT lastName, firstName, Birth, City FROM competition_judges WHERE compId = {active_comp} AND Birth IS NOT NULL AND active = 1")
-            ans = cur.fetchall()
-            for jud in ans:
                 if type(jud['Birth']) != str:
                     judBirth = str(jud['Birth']).split('-')
-                    year = judBirth[0]
                     judBirth[0] = date2[0]
                     judBirth = datetime.datetime.strptime('-'.join(judBirth), '%Y-%m-%d').date()
-                    if datetime.datetime.strptime('-'.join(date1), '%Y-%m-%d').date() <= judBirth <= datetime.datetime.strptime('-'.join(date2), '%Y-%m-%d').date():
+                    if date1 <= judBirth <= datetime.datetime.strptime('-'.join(date2), '%Y-%m-%d').date():
                         flag = 1
                         msg += f"{jud['lastName']} {jud['firstName']}, {jud['City']}, {jud['Birth']}\n"
+
             if flag == 1:
                 return msg
             else:
                 return 0
+
     except Exception as e:
         print(e)
         return 0

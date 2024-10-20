@@ -16,6 +16,7 @@ problemjudgesset = {}
 current_problem_jud = {}
 enter_mes = {}
 confirm_tour_id = {}
+last_added_judges = {}
 
 
 class Load_list_judges(StatesGroup):
@@ -134,6 +135,7 @@ async def cmd_start(message: Message):
 async def cmd_judes(message: Message, state:FSMContext):
     user_status = await get_user_status_query.get_user_status(message.from_user.id)
     if user_status == 3 or user_status == 2:
+        last_added_judges[message.from_user.id] = []
         try:
             await state.clear()
             enter_mes.pop(message.from_user.id, None)
@@ -164,7 +166,7 @@ async def f2(message: Message, state: FSMContext):
     compid = await general_queries.get_CompId(message.from_user.id)
     status = await load_judges_list.load_list(message.from_user.id, message.text, compid)
     if status == 1:
-        status1 = await chairman_queries.check_celebrate(message.from_user.id)
+        status1 = await chairman_queries.check_celebrate(message.from_user.id, last_added_judges[message.from_user.id])
         if status1 != 0:
             await message.answer(status1)
         await message.answer('Список загружен')
@@ -198,7 +200,7 @@ async def edit_problem_jud(callback: types.CallbackQuery, state: FSMContext, q=1
     try:
         problemJudges = problemjudgesset[callback.from_user.id]
         if problemJudges == [] and current_problem_jud[callback.from_user.id] == 'end':
-            status1 = await chairman_queries.check_celebrate(callback.from_user.id)
+            status1 = await chairman_queries.check_celebrate(callback.from_user.id, last_added_judges[callback.from_user.id])
             if status1 != 0:
                 await callback.message.answer(status1)
             await callback.message.answer('Загрузка завершена')
@@ -230,7 +232,7 @@ async def edit_problem_jud_after_enter_booknum(message: Message, state: FSMConte
     try:
         problemJudges = problemjudgesset[message.from_user.id]
         if problemJudges == [] and current_problem_jud[message.from_user.id] == 'end':
-            status1 = await chairman_queries.check_celebrate(message.from_user.id)
+            status1 = await chairman_queries.check_celebrate(message.from_user.id, last_added_judges[message.from_user.id])
             if status1 != 0:
                 await message.answer(status1)
             await message.answer('Загрузка завершена')

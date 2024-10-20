@@ -2,6 +2,7 @@ import config
 import pymysql
 import re
 from queries import chairman_queries
+from handlers import Chairman_menu_handler
 async def load_list(tg_id, text, compid):
     try:
         flag = 0
@@ -38,6 +39,7 @@ async def load_list(tg_id, text, compid):
                     cur.execute(
                         f"UPDATE competition_judges SET active = 1 WHERE compId = {compid} and ((lastName2 = '{last_name}' and firstName2 = '{name}') OR (lastName = '{last_name}' and firstName = '{name}'))")
                     conn.commit()
+                    Chairman_menu_handler.last_added_judges[tg_id].append([last_name, name])
                     continue
 
                 notjud = re.match(r'^[a-zA-Z]+\Z', name.replace(' ', '')) is not None
@@ -108,6 +110,7 @@ async def load_list(tg_id, text, compid):
 
                 BookNumber = int(BookNumber)
                 # Если судья уже есть в таблице competition_judges
+                Chairman_menu_handler.last_added_judges[tg_id].append([last_name, name])
                 if cur.execute(
                         f"SELECT id FROM competition_judges WHERE firstName = '{name}' AND lastName = '{last_name}' AND compId = {compid}") == 1:
                     cur.execute(
