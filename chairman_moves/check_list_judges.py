@@ -243,6 +243,7 @@ async def get_parse(text, user_id):
                         st1 = cur.execute(f"SELECT firstName, lastName From competition_judges WHERE (lastName = '{lastname}' OR lastName2 = '{lastname}') AND CompId = {active_comp} AND active = 1")
                         st1 = cur.fetchall()
                         if len(st1) == 1:
+                            print(st1)
                             text = text.replace(lastname + ' ' + firstname, st1[0]['lastName'] + ' ' + st1[0]['firstName'])
                             continue
 
@@ -260,7 +261,14 @@ async def get_parse(text, user_id):
                     lastname = k[0]
 
                 st1 = cur.execute(
-                    f"SELECT firstName, lastName From competition_judges WHERE (lastName = '{lastname}' OR lastName2 = '{lastname}') AND CompId = {active_comp} AND active = 1")
+                    f"SELECT firstName, lastName From competition_judges WHERE lastName2 = '{lastname}' and firstName2 = '{firstname}' AND CompId = {active_comp} AND active = 1")
+                st1 = cur.fetchall()
+                if len(st1) == 1:
+                    text = text.replace(lastname + ' ' + firstname, st1[0]['lastName'] + ' ' + st1[0]['firstName'])
+                    continue
+
+
+                st1 = cur.execute( f"SELECT firstName, lastName From competition_judges WHERE lastName = '{lastname}' AND CompId = {active_comp} AND active = 1")
                 st1 = cur.fetchall()
                 if len(st1) == 1:
                     text = text.replace(lastname + ' ' + firstname, st1[0]['lastName'] + ' ' + st1[0]['firstName'])
