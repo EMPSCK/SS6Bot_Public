@@ -107,7 +107,6 @@ async def load_list(tg_id, text, compid):
                         names.append(last_name+ ' '+name)
                         continue
 
-
                 BookNumber = int(BookNumber)
                 # Если судья уже есть в таблице competition_judges
                 Chairman_menu_handler.last_added_judges[tg_id].append([last_name, name])
