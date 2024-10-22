@@ -47,21 +47,19 @@ async def check_list(text, user_id):
                 area = area[0]
 
                 #group_num = re.search('Гр.\s{0,}\d+', area)
-                group_num = re.search('\d+.', area)
-                try:
-                    if group_num is not None:
-                        group_num = int(group_num[0].replace('.', '').strip())
+                group_num = re.search('\d+.', area[0:5])
 
-                        k7 = await chairman_queries.check_min_category(otherjud + linjud, group_num, active_comp, area)
-                        if k7 != 1:
-                            flag7 = 1
-                            s += k7
+                if group_num is not None:
+                    group_num = int(group_num[0].replace('.', '').strip())
 
-                        k2 = await chairman_queries.group_id_to_lin_const(active_comp, group_num)
-                        if k2 != 0 and k2 is not None:
-                            const = k2
-                except:
-                    pass
+                    k7 = await chairman_queries.check_min_category(otherjud + linjud, group_num, active_comp, area)
+                    if k7 != 1:
+                        flag7 = 1
+                        s += k7
+
+                    k2 = await chairman_queries.group_id_to_lin_const(active_comp, group_num)
+                    if k2 != 0 and k2 is not None:
+                        const = k2
 
 
                 if '' in otherjud:
