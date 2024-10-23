@@ -89,7 +89,7 @@ async def set_free_judges(user_id):
         with conn:
             cur = conn.cursor()
             for i in config.judges_index[user_id]:
-                cur.execute(f"UPDATE competition_judges SET is_use = 1 WHERE lastName = '{i[0]}' AND firstName = '{i[1]}' AND bookNumber = {i[2]} AND compId = {active_comp}")
+                cur.execute(f"UPDATE competition_judges SET is_use = 1 WHERE lastName = '{i[0]}' AND firstName = '{i[1]}' AND bookNumber = {i[2]} AND compId = {active_comp} and active = 1")
                 conn.commit()
 
             cur.close()

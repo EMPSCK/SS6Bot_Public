@@ -44,6 +44,7 @@ async def f2(message: Message):
 
         #judges_problem - не получилось пробить по competition_judges (в двух полях с именами)
         #judges_problem_db - имя совпало со вторым вариантом, далее в сообщении меняем их имена на имена в judges
+        await chairman_queries.set_is_use_0(message.from_user.id)
         linsets[message.from_user.id] = [message.text, [], [], []]
         judges_problem, judges_problem_db, text_edit = await check_list_judges.get_parse(message.text, message.from_user.id)
         linsets[message.from_user.id][1] = judges_problem
@@ -149,8 +150,9 @@ async def edit_linset(callback: types.CallbackQuery):
         await callback.message.edit_text(text)
         res, msg = await check_list_judges.check_list(text, callback.from_user.id)
         linsets[callback.from_user.id][3] = msg
-        await chairman_queries.set_free_judges(callback.from_user.id)
+
         if res == 1:
+            await chairman_queries.set_free_judges(callback.from_user.id)
             # Перед отправкой сообщения проверяем, совпадает ли выбор турниров у пары и активно ли соревнование
             scrutineer_id = await chairman_queries.get_Scrutineer(callback.from_user.id)
             if scrutineer_id == 0:
@@ -177,6 +179,7 @@ async def edit_linset(callback: types.CallbackQuery):
                 else:
                     await callback.message.answer('❌Ошибка\nВыбор турниров не согласуется')
         elif res == 0:
+            await chairman_queries.set_free_judges(callback.from_user.id)
             await callback.message.answer(msg, reply_markup=chairmans_kb.list_jud_send_kb)
 
         elif res == 2:
@@ -185,7 +188,6 @@ async def edit_linset(callback: types.CallbackQuery):
     except Exception as e:
         print(e)
         await callback.message.answer('❌Ошибка. Пожалуйста отправьте список еще раз')
-
 
 
 #Редактировать бригадный список

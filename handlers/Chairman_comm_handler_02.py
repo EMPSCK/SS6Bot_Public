@@ -114,8 +114,8 @@ async def f2(call, text):
     if user_status == 3 or user_status == 2:
         res, msg = await check_list_judges.check_list(text, call.from_user.id)
         Chairman_comm_handler.linsets[call.from_user.id][3] = msg
-        await chairman_queries.set_free_judges(call.from_user.id)
         if res == 1:
+            await chairman_queries.set_free_judges(call.from_user.id)
             # Перед отправкой сообщения проверяем, совпадает ли выбор турниров у пары и активно ли соревнование
             scrutineer_id = await chairman_queries.get_Scrutineer(call.from_user.id)
             if scrutineer_id == 0:
@@ -143,6 +143,7 @@ async def f2(call, text):
                 else:
                     await call.message.answer('❌Ошибка\nВыбор турниров не согласуется')
         elif res == 0:
+            await chairman_queries.set_free_judges(call.from_user.id)
             await call.message.answer(text)
             await call.message.answer(msg, reply_markup=chairmans_kb.list_jud_send_kb)
 
