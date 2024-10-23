@@ -171,7 +171,6 @@ async def get_parse(text, user_id):
 
             if '' in otherjud:
                 otherjud = []
-
             for i in otherjud + linjud:
                 if len(i.split()) == 2:
                     k = i.split()
@@ -212,7 +211,11 @@ async def get_parse(text, user_id):
                         if text[-1] == ',':
                             text = text[0:-1] + '.'
 
+
+
                         text = text.replace(',,', ',')
+                        text = text.replace(',.', '')
+                        text = text.replace(', .', '')
                         text = '\n\n'.join([i.strip(',') for i in re.split('\n\s{0,}\n', text)])
                         '''
                         if j == p and k[j] != re.search('^[А-ЯA-Z][а-яa-z]*', k[j])[0]:
@@ -241,7 +244,6 @@ async def get_parse(text, user_id):
                         st1 = cur.execute(f"SELECT firstName, lastName From competition_judges WHERE (lastName = '{lastname}' OR lastName2 = '{lastname}') AND CompId = {active_comp} AND active = 1")
                         st1 = cur.fetchall()
                         if len(st1) == 1:
-                            print(st1)
                             text = text.replace(lastname + ' ' + firstname, st1[0]['lastName'] + ' ' + st1[0]['firstName'])
                             continue
 
