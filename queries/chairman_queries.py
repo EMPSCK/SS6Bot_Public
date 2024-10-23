@@ -986,7 +986,7 @@ async def group_id_to_lin_const(compId, group_num):
         return 0
 
 
-async def check_min_category(judges, group_num, compId, area):
+async def check_min_category(judgesO, jundesL, group_num, compId, area):
     try:
         ans = []
         ans1 = []
@@ -1019,7 +1019,26 @@ async def check_min_category(judges, group_num, compId, area):
                 if mincat is None:
                     mincat = 0
 
-            for i in judges:
+            #Проверка остальных на запреты
+            for i in judgesO:
+                if len(i.split()) == 2:
+                    k = i.split()
+                    firstname = k[1]
+                    lastname = k[0]
+                else:
+                    k = i.split()
+                    firstname = ' '.join(k[1::])
+                    lastname = k[0]
+
+                cur.execute(f"SELECT id FROM competition_judges WHERE compId = {compId} AND lastName = '{lastname}' AND firstName = '{firstname}'")
+                jud_id = cur.fetchone()
+                jud_id = jud_id['id']
+                if jud_id in black_list:
+                    ans1 += [i]
+
+
+            #Проверка линейных на запреты/минимальную категорию
+            for i in jundesL:
                 if len(i.split()) == 2:
                     k = i.split()
                     firstname = k[1]

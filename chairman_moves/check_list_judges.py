@@ -50,7 +50,7 @@ async def check_list(text, user_id):
                 if group_num is not None:
                     group_num = int(group_num[0].replace('.', '').strip())
 
-                    k7 = await chairman_queries.check_min_category(otherjud + linjud, group_num, active_comp, area)
+                    k7 = await chairman_queries.check_min_category(otherjud, linjud, group_num, active_comp, area)
                     if k7 != 1:
                         flag7 = 1
                         s += k7
@@ -150,7 +150,6 @@ async def get_parse(text, user_id):
     areas = re.split('\n\s{0,}\n', text)
     areas = [re.split('Гс.\s{0,}|Згс.\s{0,}|Линейные судьи\s{0,}:\s{0,}', i) for i in areas]
     areas = [[i[j].strip().strip('\n').strip('.') for j in range(len(i))] for i in areas]
-
     with conn:
         cur = conn.cursor()
         for areaindex in range(len(areas)):
