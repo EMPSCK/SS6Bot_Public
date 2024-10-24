@@ -17,7 +17,7 @@ async def check_list(text, user_id):
 
         # Разбиваем текст сообщения на площадки по переносам строки, у строк с судьями по краям обрезаем переносы/пробелы/точки
         areas = re.split('\n\s{0,}\n', text)
-        areas = [re.split('Гс.\s{0,}|Згс.\s{0,}|Линейные судьи\s{0,}:\s{0,}', i) for i in areas]
+        areas = [re.split('Гс.\s{0,}|Згс.\s{0,}|Линейные судьи\s{0,}:\s{0,}|Линейные судьи\s{0,}.\s{0,}', i) for i in areas]
         areas = [[i[j].strip().strip('\n').strip('.') for j in range(len(i))] for i in areas]
         sumjudes = []
 
@@ -44,7 +44,6 @@ async def check_list(text, user_id):
                 otherjud = re.split(',\s{0,}', ', '.join(
                     [area[i] for i in range(len(area)) if i != 0 and area[i] != '' and i != len(area) - 1]))
                 area = area[0]
-
                 #group_num = re.search('Гр.\s{0,}\d+', area)
                 group_num = re.search('\d+.', area[0:5].strip())
                 if group_num is not None:
@@ -148,7 +147,7 @@ async def get_parse(text, user_id):
     )
 
     areas = re.split('\n\s{0,}\n', text)
-    areas = [re.split('Гс.\s{0,}|Згс.\s{0,}|Линейные судьи\s{0,}:\s{0,}', i) for i in areas]
+    areas = [re.split('Гс.\s{0,}|Згс.\s{0,}|Линейные судьи\s{0,}:\s{0,}|Линейные судьи\s{0,}.\s{0,}', i) for i in areas]
     areas = [[i[j].strip().strip('\n').strip('.') for j in range(len(i))] for i in areas]
     with conn:
         cur = conn.cursor()
@@ -322,7 +321,7 @@ async def transform_linlist(text, judges, user_id):
 
 async def get_all_judges(text):
     areas = re.split('\n\s{0,}\n', text)
-    areas = [re.split('Гс.\s{0,}|Згс.\s{0,}|Линейные судьи\s{0,}:\s{0,}', i) for i in areas]
+    areas = [re.split('Гс.\s{0,}|Згс.\s{0,}|Линейные судьи\s{0,}:\s{0,}|Линейные судьи\s{0,}.\s{0,}', i) for i in areas]
     areas = [[i[j].strip().strip('\n').strip('.') for j in range(len(i))] for i in areas]
     sumjudes = []
 
