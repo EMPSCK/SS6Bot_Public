@@ -127,6 +127,7 @@ async def edit_linset(callback: types.CallbackQuery):
     try:
         text = linsets[callback.from_user.id][0]
         # Заменяем всех по шаблону
+        active_comp = await general_queries.get_CompId(callback.from_user.id)
         for oldindex in range(len(linsets[callback.from_user.id][1])):
             if linsets[callback.from_user.id][2][oldindex] != []:
                 '''
@@ -136,6 +137,11 @@ async def edit_linset(callback: types.CallbackQuery):
                     linsets[callback.from_user.id][2][oldindex][0]['lastName'] + ' ' +
                     linsets[callback.from_user.id][2][oldindex][0]['firstName'])
                 '''
+                lastname2 = linsets[callback.from_user.id][1][oldindex][0]
+                firstname2 = linsets[callback.from_user.id][1][oldindex][1]
+                lastname = linsets[callback.from_user.id][2][oldindex][0]['lastName']
+                firstname = linsets[callback.from_user.id][2][oldindex][0]['firstName']
+                await chairman_queries.add_name2(lastname2, firstname2, lastname, firstname, active_comp)
                 text = re.sub(fr'{linsets[callback.from_user.id][1][oldindex][0]}\s+{linsets[callback.from_user.id][1][oldindex][1]}', linsets[callback.from_user.id][2][oldindex][0]['lastName'] + ' ' + linsets[callback.from_user.id][2][oldindex][0]['firstName'] , text)
 
 
@@ -276,8 +282,16 @@ async def cmd_start(call: types.CallbackQuery):
         BookNumber = int(call.data.replace('replin_', ''))
         name = await chairman_queries.booknumber_to_name(BookNumber)
         linsets[call.from_user.id][0] = re.sub(
-            fr'{current_problem_jud_for_check_lin[call.from_user.id][0]}\s+{current_problem_jud_for_check_lin[call.from_user.id][1]}',
+            fr'{current_problem_jud_for_check_lin[call.from_user.id][0]}\s+{current_problem_jud_for_check_lin[call.from_user.id][0]}',
             name, linsets[call.from_user.id][0])
+
+        if len(name.split()) == 2:
+            lastname, firstname = name.split()
+        else:
+            k = name.split()
+            lastname = k[0]
+            firstname = ' '.join(k[1::])
+
         #old = current_problem_jud_for_check_lin[call.from_user.id][0] + ' ' + current_problem_jud_for_check_lin[call.from_user.id][1]
         #linsets[call.from_user.id][0] = linsets[call.from_user.id][0].replace(old, name)
         await edit_linset(call)

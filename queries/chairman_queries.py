@@ -1095,3 +1095,23 @@ async def check_min_category(judgesO, jundesL, group_num, compId, area):
     except Exception as e:
         print(e)
         return 1
+
+
+async def add_name2(lastname2, firstname2, lastname, firstname, active_comp):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            print(firstname, lastname, firstname2, lastname2)
+            cur.execute(f"UPDATE competition_judges set lastName2 = '{lastname2}', firstName2 = '{firstname2}' WHERE compId = {active_comp} and active = 1 and ((firstName = '{firstname}' AND lastName = '{lastname}') OR (firstName2 = '{firstname}' AND lastName2 = '{lastname}'))")
+            conn.commit()
+            cur.close()
+    except Exception as e:
+        return 0

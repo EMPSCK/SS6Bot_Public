@@ -175,10 +175,16 @@ async def get_parse(text, user_id):
                     k = i.split()
                     firstname = k[1]
                     lastname = k[0]
+                elif len(i.split()) > 2:
+                    k = i.split()
+                    firstname = ' '.join(k[1::])
+                    lastname = k[0]
+                """
                 elif len(i.split()) == 1:
                     lastname = re.search('^[А-ЯA-Z][а-яa-z]*', i)[0]
                     firstname = i.replace(lastname, '')
                     text = text.replace(lastname + firstname, lastname + ' ' + firstname)
+                
                 elif len(i.split()) > 2:
                     peopls = []
                     k = i.split()
@@ -258,6 +264,8 @@ async def get_parse(text, user_id):
                     k = i.split()
                     firstname = ' '.join(k[1::])
                     lastname = k[0]
+                """
+
 
                 st1 = cur.execute(
                     f"SELECT firstName, lastName From competition_judges WHERE lastName2 = '{lastname}' and firstName2 = '{firstname}' AND CompId = {active_comp} AND active = 1")
@@ -266,7 +274,6 @@ async def get_parse(text, user_id):
                 if len(st1) == 1:
                     text = text.replace(lastname + ' ' + firstname, st1[0]['lastName'] + ' ' + st1[0]['firstName'])
                     continue
-
 
                 st1 = cur.execute( f"SELECT firstName, lastName From competition_judges WHERE lastName = '{lastname}' AND CompId = {active_comp} AND active = 1")
                 st1 = cur.fetchall()
