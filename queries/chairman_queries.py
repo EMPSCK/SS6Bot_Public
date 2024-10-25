@@ -196,6 +196,7 @@ async def set_problem_jud_as_is(user_id, jud, booknumber=-1):
                     federation, Archive, BookNumber, notjud, 0, lastname, firstname, DSFARR_Category_Id, 1))
                 conn.commit()
             else:
+                booknumber = await create_new_booknum(active_comp)
                 sql = "INSERT INTO competition_judges (`compId`, `lastName`, `firstName`, `notJudges`, `is_use`, `bookNumber`, `lastName2`, `firstName2`, `active`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
                 cur.execute(sql, (active_comp, lastname, firstname, notjud, 0, booknumber, lastname, firstname, 1))
                 conn.commit()
@@ -1110,8 +1111,32 @@ async def add_name2(lastname2, firstname2, lastname, firstname, active_comp):
         with conn:
             cur = conn.cursor()
             print(firstname, lastname, firstname2, lastname2)
+            print()
             cur.execute(f"UPDATE competition_judges set lastName2 = '{lastname2}', firstName2 = '{firstname2}' WHERE compId = {active_comp} and active = 1 and ((firstName = '{firstname}' AND lastName = '{lastname}') OR (firstName2 = '{firstname}' AND lastName2 = '{lastname}'))")
             conn.commit()
             cur.close()
     except Exception as e:
         return 0
+
+
+async def create_new_booknum(compid):
+    conn = pymysql.connect(
+        host=config.host,
+        port=3306,
+        user=config.user,
+        password=config.password,
+        database=config.db_name,
+        cursorclass=pymysql.cursors.DictCursor
+    )
+    with conn:
+        cur = conn.cursor()
+        cur.execute(f"select bookNumber from competition_judges where compId = {compid}")
+        a = cur.fetchall()
+        a = [i['bookNumber'] for i in a if i['bookNumber'] is not None]
+        if len(a) == 0:
+            return -1
+
+        if min(a) > 0:
+            return -1
+        else:
+            return min(a) - 1

@@ -282,7 +282,7 @@ async def cmd_start(call: types.CallbackQuery):
         BookNumber = int(call.data.replace('replin_', ''))
         name = await chairman_queries.booknumber_to_name(BookNumber)
         linsets[call.from_user.id][0] = re.sub(
-            fr'{current_problem_jud_for_check_lin[call.from_user.id][0]}\s+{current_problem_jud_for_check_lin[call.from_user.id][0]}',
+            fr'{current_problem_jud_for_check_lin[call.from_user.id][0]}\s+{current_problem_jud_for_check_lin[call.from_user.id][1]}',
             name, linsets[call.from_user.id][0])
 
         if len(name.split()) == 2:
@@ -292,6 +292,10 @@ async def cmd_start(call: types.CallbackQuery):
             lastname = k[0]
             firstname = ' '.join(k[1::])
 
+        active_comp = await general_queries.get_CompId(call.from_user.id)
+        lastname2 = current_problem_jud_for_check_lin[call.from_user.id][0]
+        firstname2 = current_problem_jud_for_check_lin[call.from_user.id][1]
+        await chairman_queries.add_name2(lastname2, firstname2, lastname, firstname, active_comp)
         #old = current_problem_jud_for_check_lin[call.from_user.id][0] + ' ' + current_problem_jud_for_check_lin[call.from_user.id][1]
         #linsets[call.from_user.id][0] = linsets[call.from_user.id][0].replace(old, name)
         await edit_linset(call)
