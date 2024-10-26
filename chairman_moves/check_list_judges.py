@@ -84,11 +84,13 @@ async def check_list(text, user_id):
                     a = ', '.join(map(str, set(otherjud) & set(linjud)))
                     s += f'🤔{area}: {a} совмеща(ет/ют) должности внутри площадки\n\n'
 
+                '''
                 # Проверяем фамилии линейных
                 if len(familylinjud) != len(set(familylinjud)):
                     s += f'❌Ошибка: {area}: внутри линейной бригады есть одинаковые фамилии\n\n'
                     flag2 = 1
                 sumjudes.append(set(otherjud + linjud))
+                '''
 
         # Проверяем пересечения между площадками
         res = list(combinations(sumjudes, 2))
