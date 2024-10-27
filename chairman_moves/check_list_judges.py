@@ -182,12 +182,12 @@ async def get_parse(text, user_id):
                     k = i.split()
                     firstname = ' '.join(k[1::])
                     lastname = k[0]
-                """
+
                 elif len(i.split()) == 1:
                     lastname = re.search('^[А-ЯA-Z][а-яa-z]*', i)[0]
                     firstname = i.replace(lastname, '')
                     text = text.replace(lastname + firstname, lastname + ' ' + firstname)
-                
+                """
                 elif len(i.split()) > 2:
                     peopls = []
                     k = i.split()
