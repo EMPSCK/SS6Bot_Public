@@ -91,6 +91,7 @@ async def check_list(text, user_id):
                     flag2 = 1
                 sumjudes.append(set(otherjud + linjud))
                 '''
+                sumjudes.append(set(otherjud + linjud))
 
         # Проверяем пересечения между площадками
         res = list(combinations(sumjudes, 2))
