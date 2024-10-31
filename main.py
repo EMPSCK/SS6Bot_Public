@@ -60,14 +60,3 @@ def get_ans():
 print(get_ans())
 """
 
-
-def bar(arr):
-    count_dict ={}
-    count = 0
-    for x in arr:
-        count_dict[x] = count_dict.get(x, 0) + 1
-    count = max(count_dict[x], count)
-    return count
-
-arr = [1, 2, 3, 4 ,5, 5, 5, 2, 2, 2, 2, 2]
-print(bar(arr))

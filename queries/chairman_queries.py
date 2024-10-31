@@ -1140,3 +1140,23 @@ async def create_new_booknum(compid):
             return -1
         else:
             return min(a) - 1
+
+async def ids_to_names(judges, active_comp):
+    conn = pymysql.connect(
+        host=config.host,
+        port=3306,
+        user=config.user,
+        password=config.password,
+        database=config.db_name,
+        cursorclass=pymysql.cursors.DictCursor
+    )
+    with conn:
+        cur = conn.cursor()
+        r = []
+        active_comp = 6
+        for judid in judges:
+            cur.execute(f"select lastName, firstName from competition_judges where compId = {active_comp} and id = {judid}")
+            ans = cur.fetchone()
+            r.append(f'{ans["lastName"]} {ans["firstName"]}')
+        return ', '.join(r)
+

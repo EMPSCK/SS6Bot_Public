@@ -1,6 +1,6 @@
 import asyncio
+import json
 import re
-
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
@@ -16,6 +16,8 @@ from queries import general_queries
 from aiogram import types
 from chairman_moves import check_list_judges
 from handlers import Chairman_comm_handler_02
+from aiogram.filters import Filter
+from chairman_moves import generation_logic
 router = Router()
 linsets = {}
 problemjudgesset_for_check_lin ={}
@@ -378,6 +380,31 @@ async def f4(callback: types.CallbackQuery):
         print(e)
         await callback.message.answer('❌Ошибка, отправьте список еще раз')
 
+#Формирования списка по номерам групп
+class Is_Group_List(Filter):
+    def __init__(self, my_text: str) -> None:
+        self.my_text = my_text
+    async def __call__(self, message: Message) -> bool:
+        text = message.text.split()
+        text = [i.strip('\n').strip('.').isdigit() for i in text]
+        return all(i == 1 for i in text)
+
+
+@router.message(Is_Group_List(F.text))
+async def handle_text_message(message: types.Message):
+    try:
+        group_list = [int(i.strip('\n').strip('.')) for i in message.text.split()]
+        active_comp = await general_queries.get_CompId(message.from_user.id)
+        if active_comp is None:
+            return await message.answer('❌Ошибка. Необходимо задать активный турнир')
+
+        data = {'compId': 6, "regionId": 78, "status": 12, "groupList": group_list}
+        ans = await generation_logic.get_ans(data)
+        #ans = json.dumps(ans, ensure_ascii=False)
+        await message.answer(ans)
+    except Exception as e:
+        print(e)
+        await message.answer('❌Ошибка')
 
 #Обработка сообщений между scrutineer и chairman
 @router.message()
