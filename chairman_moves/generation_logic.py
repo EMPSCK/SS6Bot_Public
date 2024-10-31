@@ -352,7 +352,6 @@ async def ids_to_names(judges, active_comp):
     with conn:
         cur = conn.cursor()
         r = []
-        active_comp = 6
         for judid in judges:
             cur.execute(f"select lastName, firstName from competition_judges where compId = {active_comp} and id = {judid}")
             ans = cur.fetchone()
