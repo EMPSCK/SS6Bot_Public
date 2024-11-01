@@ -25,8 +25,10 @@ async def get_ans(data):
         ans = await json_to_message(json_export, data)
         return ans
 
-    relatives_list, judge_counter_list = await get_future_tables()
+    judge_counter_list = await get_future_tables()
+    relatives_list = await get_relative_list(data['compId'])
     black_list = await get_black_list(data['compId'])
+
     comp_region_id = data['regionId']
     relatives_dict = await relatives_list_change(relatives_list)
 
@@ -51,8 +53,12 @@ async def get_ans(data):
         s += 1
         if s == 0: sucess_result = 0
 
-        if s > 1 and sucess_result == 1:  # если нам передали несколько групп, то есть мы должны генерить в параллель и если это уже не первая группа и предыдущая была сгенерена успешно
-            # тогда из общего списка судей выкидываем всех кого нагенерили в панельки ранее
+        """
+        Если нам передали несколько групп, то есть мы должны генерить в параллель
+        и если это уже не первая группа и предыдущая была сгенерена успешно
+        тогда из общего списка судей выкидываем всех кого нагенерили в панельки ранее
+        """
+        if s > 1 and sucess_result == 1:
             group_all_judges_list = all_judges_list.copy()
             for j in group_finish_judges_list:
                 group_all_judges_list.pop(j, None)
@@ -136,6 +142,7 @@ async def get_ans(data):
             sucess_result = 0
             json_end['group_number'] = group_number
             json_end['status'] = "fail"
+            json_end['msg'] = 'msg'
 
         json_export[group_number] = json_end
 
@@ -196,13 +203,14 @@ async def get_future_tables():
         # 24: {'name': 'Мужчины и женщины сальса', 'min_category': 7, 'otd_num' : 11, 'n_judges': 9}
     #}
 
+    '''
     relatives_list = [
         {'id': 1,
          'relative_id': 3},
         {'id': 3,
          'relative_id': 1}
     ]
-
+    '''
     '''
     black_list = [
         {'group_number': 21,
@@ -215,7 +223,31 @@ async def get_future_tables():
     '''
 
     judge_counter_list = [{'otd_num': 11, 'id': i, 'jud_entries': 0} for i in range(1, 101)]
-    return relatives_list, judge_counter_list
+    return judge_counter_list
+
+async def get_relative_list(compId):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            ans = []
+            cur.execute(f"select firstId, secondId from judges_relatives where compId = {compId}")
+            data = cur.fetchall()
+            for connect in data:
+                ans.append({'id': connect["firstId"], 'relative_id': connect["secondId"]})
+
+            return ans
+
+    except Exception as e:
+        print(e, 'get_relative_list')
+
 
 async def get_black_list(compId):
     try:
@@ -253,7 +285,7 @@ async def get_all_judges_yana(compId):
         with conn:
             cur = conn.cursor()
             cur.execute(
-               f"SELECT id, lastName, firstName, SPORT_Category, RegionId, Club, bookNumber FROM competition_judges WHERE compId = {compId}")  # выбираем только активных на данный момент судей
+               f"SELECT id, lastName, firstName, SPORT_Category, RegionId, Club, bookNumber FROM competition_judges WHERE compId = {compId} and active = 1")  # выбираем только активных на данный момент судей
             data = cur.fetchall()
             return data
 
@@ -353,7 +385,7 @@ async def ids_to_names(judges, active_comp):
         cur = conn.cursor()
         r = []
         for judid in judges:
-            cur.execute(f"select lastName, firstName from competition_judges where compId = {active_comp} and id = {judid}")
+            cur.execute(f"select lastName, firstName from competition_judges where compId = {active_comp} and id = {judid} and active = 1")
             ans = cur.fetchone()
             r.append(f'{ans["lastName"]} {ans["firstName"]}')
         return ', '.join(r)
