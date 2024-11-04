@@ -15,6 +15,7 @@ async def get_ans(data):
         if r == "undefinedGroup":
             json_end['group_number'] = group_id_inp
             json_end['status'] = "fail"
+            json_end['msg'] = 'Группа не была обнаружена'
             json_end['judge_id'] = []
             json_export[group_id_inp] = json_end
         else:
@@ -129,7 +130,6 @@ async def get_ans(data):
                         sucess_result = 1
                 else:
                     print('Не удалось набрать необходимое количество судей по заданным ограничениям')
-                    print(group_finish_judges_list)
                     break
 
             json_end['group_number'] = group_number
@@ -137,12 +137,11 @@ async def get_ans(data):
             json_end['judge_id'] = list()
             for i in group_finish_judges_list:
                 json_end['judge_id'].append(all_judges_list[i]['id'])
-            print('Распределение регионов', regions)
         else:
             sucess_result = 0
             json_end['group_number'] = group_number
             json_end['status'] = "fail"
-            json_end['msg'] = 'msg'
+            json_end['msg'] = 'не удалось сформировать группу с учетом заданных условий'
 
         json_export[group_number] = json_end
 
@@ -394,7 +393,12 @@ async def ids_to_names(judges, active_comp):
 async def json_to_message(json_export, data):
     r = []
     for key in json_export:
-        peoples = await ids_to_names(json_export[key]['judge_id'], data['compId'])
-        text = f'{key}\nЛинейные судьи: {peoples}'
-        r.append(text)
+        if json_export[key]['status'] == 'success':
+            peoples = await ids_to_names(json_export[key]['judge_id'], data['compId'])
+            text = f'{key}\nЛинейные судьи: {peoples}'
+            r.append(text)
+
+        if json_export[key]['status'] == 'fail':
+            text = f'{key}\nЛинейные судьи: {json_export[key]["msg"]}'
+            r.append(text)
     return '\n\n'.join(r)

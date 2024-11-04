@@ -36,6 +36,7 @@ async def load_list(tg_id, text, compid):
                 # Проверяем есть ли запись в competition_judges
                 if cur.execute(
                     f"SELECT firstName from competition_judges WHERE compId = {compid} and ((lastName2 = '{last_name}' and firstName2 = '{name}') OR (lastName = '{last_name}' and firstName = '{name}'))") == 1:
+
                     cur.execute(
                         f"UPDATE competition_judges SET active = 1 WHERE compId = {compid} and ((lastName2 = '{last_name}' and firstName2 = '{name}') OR (lastName = '{last_name}' and firstName = '{name}'))")
                     conn.commit()

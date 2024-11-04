@@ -59,4 +59,19 @@ def get_ans():
 
 print(get_ans())
 """
+nums = [7,7,7,7,7,7,7]
+f = [[i] for i in nums]
+for i in range(1, len(nums)):
+    maxlenindex = 0
+    value = []
+    for j in range(0, i):
+        if nums[i] > f[j][-1] and maxlenindex < len(f[j]):
+            maxlenindex = len(f[j])
+            value = f[j]
 
+    if value != []:
+        f[i] = value + [nums[i]]
+
+
+print(max([len(i) for i in f]))
+a = r'cedc\cfvfvfv'

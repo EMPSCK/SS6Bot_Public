@@ -67,7 +67,7 @@ async def set_active_0(user_id):
         active_comp = await general_queries.get_CompId(user_id)
         with conn:
             cur = conn.cursor()
-            cur.execute(f"UPDATE competition_judges set active = 0 WHERE compId = {active_comp}")
+            cur.execute(f"UPDATE competition_judges set active = 0, is_use = 0 WHERE compId = {active_comp}")
             conn.commit()
         return 1
     except:
