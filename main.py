@@ -59,19 +59,37 @@ def get_ans():
 
 print(get_ans())
 """
-nums = [7,7,7,7,7,7,7]
-f = [[i] for i in nums]
-for i in range(1, len(nums)):
-    maxlenindex = 0
-    value = []
-    for j in range(0, i):
-        if nums[i] > f[j][-1] and maxlenindex < len(f[j]):
-            maxlenindex = len(f[j])
-            value = f[j]
+import requests
 
-    if value != []:
-        f[i] = value + [nums[i]]
+# Ваш токен бота
+BOT_TOKEN = '7217667401:AAGoDN0XJmwqAAnBstZHg1wO1hcgQjpDXqU'
 
+# Идентификатор канала (может быть либо username, либо chat_id)
+CHANNEL_ID = '@helloworldqwertyuiop'
 
-print(max([len(i) for i in f]))
-a = r'cedc\cfvfvfv'
+# Ограничение на количество использований ссылки
+MEMBER_LIMIT = 1
+
+# Время жизни ссылки в секундах (например, 1800 секунд = 30 минут)
+EXPIRATION_TIME = 1800
+
+def generate_invite_link(bot_token, channel_id, member_limit, expiration_time):
+    url = f"https://api.telegram.org/bot{bot_token}/exportChatInviteLink"
+    payload = {
+        "chat_id": channel_id,
+        "member_limit": member_limit,
+        "expire_date": expiration_time
+    }
+    response = requests.post(url, json=payload)
+    if response.status_code == 200:
+        result = response.json()
+        print(result)
+    else:
+        raise Exception(f"Ошибка при генерации ссылки: {response.text}")
+
+if __name__ == "__main__":
+    try:
+        link = generate_invite_link(BOT_TOKEN, CHANNEL_ID, MEMBER_LIMIT, EXPIRATION_TIME)
+        print(f"Временная ссылка на канал: {link}")
+    except Exception as e:
+        print(e)

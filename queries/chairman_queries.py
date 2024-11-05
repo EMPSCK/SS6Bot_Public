@@ -6,6 +6,7 @@ import re
 import datetime
 from datetime import date
 
+
 async def set_active_comp_for_chairman(tg_id, id):
     try:
         conn = pymysql.connect(

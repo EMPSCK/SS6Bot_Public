@@ -30,6 +30,7 @@ async def get_ans(data):
     relatives_list = await get_relative_list(data['compId'])
     black_list = await get_black_list(data['compId'])
 
+
     comp_region_id = data['regionId']
     relatives_dict = await relatives_list_change(relatives_list)
 
@@ -38,6 +39,11 @@ async def get_ans(data):
 
     # 2. запрашиваем и обрабатываем список судей
     ans = await get_all_judges_yana(data['compId'])
+    print(relatives_list)
+    print(black_list)
+    print()
+    for i in ans:
+        print(i)
 
     all_judges_list = {}  # преобразуем словарь для более удобной работы, создаем общий список доступных для выбора судей с параметрами
 
@@ -89,7 +95,8 @@ async def get_ans(data):
         group_all_judges_list = await judges_black_list_filter(group_all_judges_list,
                                                          black_list_cat)  # 6. удаляем таких судей из категории
 
-        if len(group_all_judges_list) > n_judges:
+
+        if len(group_all_judges_list) >= n_judges:
             while n_judges_category < n_judges:
                 if len(group_all_judges_list) > 0:
                     # после чисток выбираем рандомного судью из списка
@@ -129,25 +136,30 @@ async def get_ans(data):
                     if n_judges_category == n_judges:  # если набрали необходимое количество судей, то успех
                         sucess_result = 1
                 else:
-                    print('Не удалось набрать необходимое количество судей по заданным ограничениям')
+                    sucess_result = 0
+                    json_end['group_number'] = group_number
+                    json_end['status'] = "fail"
+                    json_end['msg'] = 'Не удалось сформировать бригаду с учетом заданных условий. Попробуйте сгенерирвать еще раз или уменьшить количество судей в бригаде.'
                     break
-
-            json_end['group_number'] = group_number
-            json_end['status'] = "success"
-            json_end['judge_id'] = list()
-            for i in group_finish_judges_list:
-                json_end['judge_id'].append(all_judges_list[i]['id'])
+            else:
+                json_end['group_number'] = group_number
+                json_end['status'] = "success"
+                json_end['judge_id'] = list()
+                for i in group_finish_judges_list:
+                    json_end['judge_id'].append(all_judges_list[i]['id'])
         else:
             sucess_result = 0
             json_end['group_number'] = group_number
             json_end['status'] = "fail"
-            json_end['msg'] = 'не удалось сформировать группу с учетом заданных условий'
+            json_end['msg'] = 'Не удалось сформировать бригаду с учетом заданных условий. Попробуйте сгенерирвать еще раз или уменьшить количество судей в бригаде'
 
         json_export[group_number] = json_end
 
     #json.loads(json.dumps(json_export))
     ans = await json_to_message(json_export, data)
+    print(regions)
     return ans
+
 
 #получить параметр групп по турниру и номеру
 async def get_group_params(comp_id, group_id):
@@ -223,6 +235,7 @@ async def get_future_tables():
 
     judge_counter_list = [{'otd_num': 11, 'id': i, 'jud_entries': 0} for i in range(1, 101)]
     return judge_counter_list
+
 
 async def get_relative_list(compId):
     try:
@@ -311,11 +324,11 @@ async def decode_category(category_name):
 
 #функция удаляет судей с категорией ниже минимальной для группы
 async def judges_category_filter(all_judges_list, min_category):
-  all_judges_list_1 = all_judges_list.copy()
-  for i in all_judges_list:
-    if all_judges_list_1[i]['SPORT_Category_decoded'] < min_category:
-      all_judges_list_1.pop(i, None)
-  return all_judges_list_1
+    all_judges_list_1 = all_judges_list.copy()
+    for i in all_judges_list:
+        if all_judges_list_1[i]['SPORT_Category_decoded'] < min_category:
+            all_judges_list_1.pop(i, None)
+    return all_judges_list_1
 
 #функция предварительной обработки блэклиста - по номеру категории определяем судей с запретом, на выход - айдишники судей
 async def black_list_convert(category_number, black_list):
