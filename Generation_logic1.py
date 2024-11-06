@@ -2,6 +2,13 @@ import random
 import json
 import config
 import pymysql
+import asyncio
+data = {
+    "compId": 6,
+    "regionId": 78,
+    "status": 12,
+    "groupList": [29]
+}
 
 async def get_ans(data):
     json_end = dict()
@@ -15,7 +22,7 @@ async def get_ans(data):
         if r == "undefinedGroup":
             json_end['group_number'] = group_id_inp
             json_end['status'] = "fail"
-            json_end['msg'] = 'группа не была обнаружена'
+            json_end['msg'] = 'Группа не была обнаружена'
             json_end['judge_id'] = []
             json_export[group_id_inp] = json_end
         else:
@@ -416,3 +423,8 @@ async def json_to_message(json_export, data):
             text = f'{key}\nЛинейные судьи: {json_export[key]["msg"]}'
             r.append(text)
     return '\n\n'.join(r)
+
+loop = asyncio.get_event_loop()
+ans = loop.run_until_complete(get_ans(data))
+loop.close()
+print(ans)
