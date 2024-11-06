@@ -1,61 +1,45 @@
-"""
-n, m = [int(x) for x in input().split()]
-matrix = []
-for i in range(m):
-    matrix.append(input())
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_auc_score
+from sklearn.ensemble import HistGradientBoostingClassifier
+from itertools import combinations
 
+train = pd.read_csv('train.csv')
+train = train.drop('smpl', axis=1)
+corrmat = train.corr()
 
-def check_sq(row, left, right):
-    a = right - left
-    up = matrix[row - a][left: right + 1]
-    if up != '1'*(a + 1):
-        return 0
+relevant_features = corrmat['target'].abs().sort_values(ascending=False)[1:].index.tolist()
+relevant_features = relevant_features[0:30]
 
-    for i in range(row - a, row + 1):
-        if matrix[i][left] != '1':
-            return 0
+ans = []
+for i in range(1, 31):
+    print(f'Используем признаков {i}')
+    final_features_list = list(combinations(relevant_features, i))
+    max_score = 0
+    features = []
+    for f in final_features_list:
+        final_features = list(f)
+        X_train, X_test, y_train, y_test = train_test_split(
+            train[final_features], train['target'], random_state=42, stratify=train['target'], test_size=0.3)
 
-    for i in range(row - a, row + 1):
-        if matrix[i][right] != '1':
-            return 0
+        gbdt_clf = HistGradientBoostingClassifier(min_samples_leaf=1,
+                                                  max_depth=20,
+                                                  max_iter=125,
+                                                  random_state=42).fit(X_train, y_train)
 
-    k = left + 1
-    k1 = right - 1
-    for rowb in range(row - a + 1, row):
-        if matrix[rowb][k] != '1' or matrix[rowb][k1] != '1':
-            return 1
-        k += 1
-        k1 -= 1
+        # Получим предсказание с вероятностями для валидационной части тренировочного датасета
+        y_pred = gbdt_clf.predict_proba(X_test)
 
-    return 2
+        # Переведем предсказание в формат Series
+        y_pred = pd.Series(y_pred[:, 1])
 
+        # Высчитаем метрику roc-auc по валидационным данным
+        score = roc_auc_score(y_test, y_pred)
+        if score > max_score:
+            max_score = score
+            features = final_features
+    ans.append(f'{max_score}: {features}')
 
-def get_ans():
-    # Проходимся по всем стрчкам матрицы начиная с 5
-    flag = 0
-    for rowindex in range(4, len(matrix)):
-        # Определяем правый нижний угол квадрата
-        for rightDownIndex in range(4, n):
-            if matrix[rowindex][rightDownIndex] == '1':
-                if matrix[rowindex][rightDownIndex - 4:rightDownIndex + 1] != '1' * (5):
-                    continue
-
-                for leftDownIndex in range(rightDownIndex - 4, -1, -1):
-                    if matrix[rowindex][leftDownIndex] == '0':
-                        break
-                    if matrix[rowindex][leftDownIndex: rightDownIndex + 1] == '1' * (
-                            rightDownIndex - leftDownIndex + 1) and rowindex >= (rightDownIndex - leftDownIndex):
-                        ans = check_sq(rowindex, leftDownIndex, rightDownIndex)
-                        if ans == 1:
-                            flag = 1
-                            return 'Not marked'
-                        elif ans == 2:
-                            flag = 1
-                            return 'Marked'
-                    else:
-                        break
-    if flag == 0:
-        return 'Printing error'
-
-print(get_ans())
-"""
+with open("output.txt", "a") as file:
+    for line in ans:
+        file.write(line + "\n\n")
